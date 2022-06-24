@@ -1,0 +1,65 @@
+openapi: "3.0.0"
+info:
+  title: Campaign Composer REST API
+  version: "1.0.0"
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+security:
+  - apiKeyAuth: []
+
+paths:
+  /documents:
+    get:
+      summary: Get a list of metadata for all documents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './document.yaml#/components/schemas/documentMeta'
+              examples:
+                default:
+                  value:
+                    - id: 590B91E5-4520-40CE-A5B5-8FE019486EF8
+                      title: Document title
+                      type: entity
+                      created: '2022-06-14T04:35:29Z'
+                      updated: '2022-06-14T04:35:29Z'
+  /documents/{docId}:
+    get:
+      parameters:
+      - name: docId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './document.yaml#/components/schemas/document'
+              examples:
+                default:
+                  value:
+                    id: 590B91E5-4520-40CE-A5B5-8FE019486EF8
+                    title: Document title
+                    created: '2022-06-14T04:35:29Z'
+                    updated: '2022-06-14T04:35:29Z'
+                    contents:
+                      - id: F90BA1E5-4520-40BE-A5B5-8FE019486EF8
+                        type: heading
+                        contents: 'Section heading'
+                      - id: A90BA1E5-4520-40BE-A5B5-8FE019486EF8
+                        type: paragraph
+                        contents: 'Section body'

@@ -1,0 +1,55 @@
+openapi: '3.0.0'
+
+components:
+  schemas:
+    documentType:
+      type: string
+      enum:
+      - entity
+      - scratchpad
+    documentMeta:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          $ref: '#/components/schemas/documentType'
+        created:
+          type: string
+        updated:
+          type: string
+    document:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          $ref: '#/components/schemas/documentType'
+        created:
+          type: string
+        updated:
+          type: string
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/block'
+    blockType:
+      type: string
+      enum:
+      - heading
+      - paragraph
+      - listItem
+      - embed
+    block:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/blockType'
+        contents:
+          type: string
