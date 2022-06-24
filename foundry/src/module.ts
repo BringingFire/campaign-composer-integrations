@@ -1,57 +1,32 @@
-import * as api from "campaign-composer-api";
+import { moduleName } from "./constants";
+import BridgeSettings from "./settings";
 
-const moduleName = "campaign-composer-bridge";
-
-// let ws: WebSocket;
-
-Hooks.once("ready", () => {
+Hooks.once("init", () => {
   if (!(game instanceof Game)) {
-    console.log("FATAL: game singleton not initialized");
-    return;
-  }
-  if (!game.user?.isGM) {
-    console.log("Composer Bridge not initializing for non-GM user");
-    return;
+    throw "game singleton not initialized";
   }
 
   console.log("Initializing Campaign Composer bridge");
 
-  game.settings.register(moduleName, "apiUrl", {
-    name: "Campaign Composer API URL",
-    hint: "TODO",
-    scope: "client", // This specifies a client-stored setting
-    config: true, // This specifies that the setting appears in the configuration view
-    type: String,
-    default: "http://localhost:4492", // The default value for the setting
-    onChange: (value) => {
-      // A callback function which triggers when the setting is changed
-      console.log(`Set composer api url to: "${value}"`);
-    },
-  });
+  BridgeSettings.registerSettings();
 
-  game.settings.register(moduleName, "apiKey", {
-    name: "Campaign Composer API Key",
-    hint: "TODO",
-    scope: "client", // This specifies a client-stored setting
-    config: true, // This specifies that the setting appears in the configuration view
-    type: String,
-    default: "PASSWORD123", // The default value for the setting
-    onChange: (value) => {
-      // A callback function which triggers when the setting is changed
-      console.log(`Set composer api key to: "${value}"`);
-    },
-  });
+  // const module = game.modules.get(moduleName);
+});
 
-  const apiClient = new api.DefaultApi(
-    new api.Configuration({
-      basePath: game.settings.get(moduleName, "apiUrl") as string,
-      apiKey: game.settings.get(moduleName, "apiKey") as string,
-    })
-  );
+Hooks.on("renderJournalDirectory", (_: Application, html: any, __: any) => {
+  if (!(game instanceof Game)) {
+    throw "game singleton not initialized";
+  }
 
-  apiClient.documentsGet().then((docs) => {
-    docs.forEach((doc) => {
-      console.log(doc);
-    });
+  if (!game.user!.isGM) {
+    return;
+  }
+
+  const button = $(`<button type="button" style="flex:0 0 32px;">
+    <img src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer" style="height:24px;border:none;"/>
+  </button>`);
+  button.on("click", (_) => {
+    console.log("TODO: show composer things");
   });
+  html.find(".directory-header .action-buttons").append(button);
 });
