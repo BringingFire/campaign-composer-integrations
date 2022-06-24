@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/foundryvtt-manifest.json",
+  "name": "campaign-composer-bridge",
+  "title": "Campaign Composer Bridge",
+  "description": "Provides communication with Campaign Composer",
+  "authors": [
+    {
+      "name": "Bringing Fire, Inc.",
+      "email": "engineering@bringingfire.com",
+      "url": "bringingfire.com"
+    }
+  ],
+  "version": "0.0.1",
+  "minimumCoreVersion": "9",
+  "esmodules": [
+    "scripts/module.js"
+  ]
+}
