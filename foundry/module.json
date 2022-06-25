@@ -12,7 +12,6 @@
   ],
   "version": "0.0.1",
   "minimumCoreVersion": "9",
-  "esmodules": [
-    "scripts/module.js"
-  ]
+  "styles": ["style.css"],
+  "esmodules": ["scripts/module.js"]
 }

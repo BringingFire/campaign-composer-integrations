@@ -1,5 +1,6 @@
 import { moduleName } from "./constants";
 import BridgeSettings from "./settings";
+import "./style.scss";
 
 Hooks.once("init", () => {
   if (!(game instanceof Game)) {
@@ -22,8 +23,8 @@ Hooks.on("renderJournalDirectory", (_: Application, html: any, __: any) => {
     return;
   }
 
-  const button = $(`<button type="button" style="flex:0 0 32px;">
-    <img src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer" style="height:24px;border:none;"/>
+  const button = $(`<button class="cc-journal-button" type="button">
+    <img class="cc-journal-button-icon" src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer"/>
   </button>`);
   button.on("click", (_) => {
     console.log("TODO: show composer things");
