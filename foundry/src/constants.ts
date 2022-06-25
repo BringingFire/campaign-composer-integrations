@@ -1,1 +1,1 @@
-export const moduleName = "campaign-composer-bridge";
+export const moduleName = 'campaign-composer-bridge';
