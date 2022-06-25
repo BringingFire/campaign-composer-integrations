@@ -6,7 +6,7 @@ export default defineConfig({
     rollupOptions: {
       input: "src/module.ts",
       output: {
-        dir: null,
+        dir: undefined,
         file: "dist/scripts/module.js",
         format: "es",
       },

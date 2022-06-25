@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "campaign-composer-api": "file:./../api/out/typescript"
+    "campaign-composer-api": "file:../api/out/typescript"
   }
 }
