@@ -1,12 +1,15 @@
 import { moduleName } from './constants';
 
+const apiUrlKey = 'apiUrl';
+const apiKeyKey = 'apiKey';
+
 export default class BridgeSettings {
   static registerSettings(): void {
     if (!(game instanceof Game)) {
       throw 'game singleton not initialized';
     }
 
-    game.settings.register(moduleName, 'apiUrl', {
+    game.settings.register(moduleName, apiUrlKey, {
       name: 'Campaign Composer API URL',
       hint: 'TODO',
       scope: 'client', // This specifies a client-stored setting
@@ -19,7 +22,7 @@ export default class BridgeSettings {
       },
     });
 
-    game.settings.register(moduleName, 'apiKey', {
+    game.settings.register(moduleName, apiKeyKey, {
       name: 'Campaign Composer API Key',
       hint: 'TODO',
       scope: 'client', // This specifies a client-stored setting
@@ -31,5 +34,13 @@ export default class BridgeSettings {
         console.log(`Set composer api key to: "${value}"`);
       },
     });
+  }
+
+  public static get apiUrl(): string {
+    return (game as Game).settings.get(moduleName, apiUrlKey) as string;
+  }
+
+  public static get apiKey(): string {
+    return (game as Game).settings.get(moduleName, apiKeyKey) as string;
   }
 }

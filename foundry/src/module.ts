@@ -1,6 +1,11 @@
+import * as api from 'campaign-composer-api';
 import { moduleName } from './constants';
+import CampaignComposerBrowser from './journal';
 import BridgeSettings from './settings';
 import './style.scss';
+import { CCModuleData } from './types';
+
+let module: CCModuleData;
 
 Hooks.once('init', () => {
   if (!(game instanceof Game)) {
@@ -11,7 +16,15 @@ Hooks.once('init', () => {
 
   BridgeSettings.registerSettings();
 
-  // const module = game.modules.get(moduleName);
+  module = game.modules.get(moduleName) as CCModuleData;
+  module.browser = new CampaignComposerBrowser();
+
+  module.client = new api.DefaultApi(
+    new api.Configuration({
+      basePath: BridgeSettings.apiUrl,
+      apiKey: BridgeSettings.apiKey,
+    }),
+  );
 });
 
 Hooks.on('renderJournalDirectory', (_: Application, html: any, __: any) => {
@@ -27,7 +40,7 @@ Hooks.on('renderJournalDirectory', (_: Application, html: any, __: any) => {
     <img class="cc-journal-button-icon" src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer"/>
   </button>`);
   button.on('click', (_) => {
-    console.log('TODO: show composer things');
+    module.browser.render(true);
   });
   html.find('.directory-header .action-buttons').append(button);
 });

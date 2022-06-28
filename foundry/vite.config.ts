@@ -25,6 +25,7 @@ export default defineConfig({
       targets: [
         { src: 'module.json', dest: 'dist' },
         { src: 'assets', dest: 'dist' },
+        { src: 'templates', dest: 'dist' },
       ],
       hook: 'writeBundle',
     }),
