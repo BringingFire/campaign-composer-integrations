@@ -1,5 +1,6 @@
 import {
   BlockAttributeHeaderLevel,
+  BlockAttributeListIndent,
   BlockAttributeListStyle,
   BlockAttributeListStyleStyleEnum,
   BlockType,
@@ -165,13 +166,15 @@ interface DocContents {
 }
 
 function getContentForDoc(doc: CCDocument): DocContents {
+  const listState = new ListState();
+
   const html =
     '<section>\n' +
     doc.contents
       .map((b) => {
         switch (b.type) {
           case BlockType.Paragraph:
-            return `<p>${b.contents}</p>`;
+            return `${listState.closeList()}<p>${b.contents}</p>`;
           case BlockType.Heading:
             const headingLevel =
               (
@@ -179,36 +182,83 @@ function getContentForDoc(doc: CCDocument): DocContents {
                   (attr) => attr._t === 'headerLevel',
                 ) as BlockAttributeHeaderLevel | undefined
               )?.level ?? 1;
-            return `</section>\n<section>\n<h${headingLevel}>${b.contents}</h${headingLevel}>`;
+            return `${listState.closeList()}</section>\n<section>\n<h${headingLevel}>${
+              b.contents
+            }</h${headingLevel}>`;
           case BlockType.ListItem:
-            // const _listIndent =
-            //   (
-            //     b.attributes?.blockAttributes.find(
-            //       (attr) => attr._t === 'listIndent',
-            //     ) as BlockAttributeListIndent | undefined
-            //   )?.level ?? 1;
+            const listIndent =
+              (
+                b.attributes?.blockAttributes.find(
+                  (attr) => attr._t === 'listIndent',
+                ) as BlockAttributeListIndent | undefined
+              )?.level ?? 1;
             const listStyle =
               (
                 b.attributes?.blockAttributes.find(
                   (attr) => attr._t === 'listStyle',
                 ) as BlockAttributeListStyle | undefined
               )?.style ?? BlockAttributeListStyleStyleEnum.UnOrdered;
-            const listTag =
-              listStyle == BlockAttributeListStyleStyleEnum.Ordered
-                ? 'ol'
-                : 'ul';
-            return `<${listTag}><li>${b.contents}</li></${listTag}>`;
+            return `${listState.match(listIndent, listStyle)}<li>${
+              b.contents
+            }</li>`;
           default:
             console.error(`Unknown block type: ${b.type}`);
-            return `<p>${b.contents}</p>`;
+            return `${listState.closeList()}<p>${b.contents}</p>`;
         }
       })
       .join('\n') +
+    listState.closeList();
     '</section>';
+
   return {
     html,
     flags: {
       documentId: doc.id,
     },
   };
+}
+
+class ListState {
+  private level: number = -1;
+  private type: BlockAttributeListStyleStyleEnum | undefined;
+
+  private get tag(): string {
+    return this.type == BlockAttributeListStyleStyleEnum.Ordered ? 'ol' : 'ul';
+  }
+
+  public closeList(): string {
+    if (this.level < 0) {
+      return '';
+    }
+
+    let result = '';
+    while (this.level >= 0) {
+      result != `</${this.tag}>\n`;
+      this.level -= 1;
+    }
+    this.type = undefined;
+
+    return result;
+  }
+
+  public match(level: number, type: BlockAttributeListStyleStyleEnum): string {
+    if (level < 0) {
+      throw 'level must be >= 0';
+    }
+
+    let result = '';
+
+    while (this.level > level || (this.type != type && this.level >= 0)) {
+      result += `</${this.tag}>\n`;
+      this.level -= 1;
+    }
+
+    this.type = type;
+    while (this.level < level) {
+      result += `<${this.tag}>\n`;
+      this.level += 1;
+    }
+
+    return result;
+  }
 }
