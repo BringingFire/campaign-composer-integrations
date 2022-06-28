@@ -15,7 +15,7 @@ gen-api-ts:
   openapi-generator generate \
     -i api/api.yaml \
     -g typescript-fetch \
-    --additional-properties=npmName=campaign-composer-api \
+    --additional-properties=npmName=campaign-composer-api,modelPropertyNaming=original \
     -o api/out/typescript
   cd api/out/typescript && yarn && yarn build
 

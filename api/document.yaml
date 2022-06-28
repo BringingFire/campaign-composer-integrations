@@ -10,10 +10,10 @@ components:
     documentMeta:
       type: object
       required:
-      - id
-      - type
-      - created
-      - updated
+        - id
+        - type
+        - created
+        - updated
       properties:
         id:
           type: string
@@ -28,11 +28,11 @@ components:
     document:
       type: object
       required:
-      - id
-      - type
-      - created
-      - updated
-      - contents
+        - id
+        - type
+        - created
+        - updated
+        - contents
       properties:
         id:
           type: string
@@ -51,16 +51,89 @@ components:
     blockType:
       type: string
       enum:
-      - heading
-      - paragraph
-      - listItem
-      - embed
+        - heading
+        - paragraph
+        - listItem
+        - embed
+    runAttributes:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          type: integer
+        end:
+          type: integer
+        isBold:
+          type: boolean
+        isItalic:
+          type: boolean
+        isUnderline:
+          type: boolean
+        isStrikethrough:
+          type: boolean
+        linkUrl:
+          type: string
+    blockAttributeHeaderLevel:
+      type: object
+      required:
+        - level
+      properties:
+        level:
+          type: integer
+    blockAttributeListIndent:
+      type: object
+      required:
+        - level
+      properties:
+        level:
+          type: integer
+    blockAttributeListStyle:
+      type: object
+      required:
+        - style
+      properties:
+        style:
+          type: string
+          enum:
+            - ordered
+            - unOrdered
+    blockAttribute:
+        type: object
+        discriminator:
+          propertyName: "_t"
+          mapping:
+            headerLevel: '#/components/schemas/blockAttributeHeaderLevel'
+            listIndent: '#/components/schemas/blockAttributeListIndent'
+            listStyle: '#/components/schemas/blockAttributeListStyle'
+        oneOf:
+          - $ref: '#/components/schemas/blockAttributeHeaderLevel'
+          - $ref: '#/components/schemas/blockAttributeListIndent'
+          - $ref: '#/components/schemas/blockAttributeListStyle'
+        properties:
+          _t:
+            type: string
+    blockAttributes:
+      type: object
+      required:
+        - runAttributes
+        - blockAttributes
+      properties:
+        runAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/runAttributes'
+        blockAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/blockAttribute'
     block:
       type: object
       required:
-      - id
-      - type
-      - contents
+        - id
+        - type
+        - contents
       properties:
         id:
           type: string
@@ -68,3 +141,5 @@ components:
           $ref: '#/components/schemas/blockType'
         contents:
           type: string
+        attributes:
+          $ref: '#/components/schemas/blockAttributes'

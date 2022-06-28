@@ -1,4 +1,11 @@
-import { DefaultApi, Document as CCDocument } from 'campaign-composer-api';
+import {
+  BlockAttributeHeaderLevel,
+  BlockAttributeListStyle,
+  BlockAttributeListStyleStyleEnum,
+  BlockType,
+  DefaultApi,
+  Document as CCDocument,
+} from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from './constants';
 import { CCModuleData } from './types';
 
@@ -158,9 +165,46 @@ interface DocContents {
 }
 
 function getContentForDoc(doc: CCDocument): DocContents {
-  const html = doc.contents
-    .map((b) => `<section>${b.contents}</section>`)
-    .join('\n');
+  const html =
+    '<section>\n' +
+    doc.contents
+      .map((b) => {
+        switch (b.type) {
+          case BlockType.Paragraph:
+            return `<p>${b.contents}</p>`;
+          case BlockType.Heading:
+            const headingLevel =
+              (
+                b.attributes?.blockAttributes.find(
+                  (attr) => attr._t === 'headerLevel',
+                ) as BlockAttributeHeaderLevel | undefined
+              )?.level ?? 1;
+            return `</section>\n<section>\n<h${headingLevel}>${b.contents}</h${headingLevel}>`;
+          case BlockType.ListItem:
+            // const _listIndent =
+            //   (
+            //     b.attributes?.blockAttributes.find(
+            //       (attr) => attr._t === 'listIndent',
+            //     ) as BlockAttributeListIndent | undefined
+            //   )?.level ?? 1;
+            const listStyle =
+              (
+                b.attributes?.blockAttributes.find(
+                  (attr) => attr._t === 'listStyle',
+                ) as BlockAttributeListStyle | undefined
+              )?.style ?? BlockAttributeListStyleStyleEnum.UnOrdered;
+            const listTag =
+              listStyle == BlockAttributeListStyleStyleEnum.Ordered
+                ? 'ol'
+                : 'ul';
+            return `<${listTag}><li>${b.contents}</li></${listTag}>`;
+          default:
+            console.error(`Unknown block type: ${b.type}`);
+            return `<p>${b.contents}</p>`;
+        }
+      })
+      .join('\n') +
+    '</section>';
   return {
     html,
     flags: {
