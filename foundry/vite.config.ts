@@ -19,13 +19,13 @@ export default defineConfig({
       verbose: true,
       output: 'dist/style.css',
       sourceMap: true,
-      watch: ['src/*.scss'],
+      watch: ['src/styles/*.scss'],
     }),
     copy({
       targets: [
-        { src: 'module.json', dest: 'dist' },
-        { src: 'assets', dest: 'dist' },
-        { src: 'templates', dest: 'dist' },
+        { src: 'src/module.json', dest: 'dist' },
+        { src: 'src/assets', dest: 'dist' },
+        { src: 'src/templates', dest: 'dist' },
       ],
       hook: 'writeBundle',
     }),

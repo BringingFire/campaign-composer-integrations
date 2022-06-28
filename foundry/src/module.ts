@@ -1,9 +1,9 @@
 import * as api from 'campaign-composer-api';
-import { moduleName } from './constants';
-import CampaignComposerBrowser from './journal';
-import BridgeSettings from './settings';
-import './style.scss';
-import { CCModuleData } from './types';
+import './styles/style.scss';
+import { moduleName } from './ts/constants';
+import CampaignComposerBrowser from './ts/journal';
+import BridgeSettings from './ts/settings';
+import { CCModuleData } from './ts/types';
 
 let module: CCModuleData;
 
