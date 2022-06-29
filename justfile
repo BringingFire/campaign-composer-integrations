@@ -3,8 +3,13 @@ default:
 
 build: gen-api build-foundry
 
-clean:
+clean: clean-api clean-foundry
+
+clean-api:
   rm -rf api/out
+
+clean-foundry:
+  cd foundry && yarn clean
 
 validate-api:
   openapi-generator validate -i api/api.yaml
