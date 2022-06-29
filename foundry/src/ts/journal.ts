@@ -31,7 +31,7 @@ export default class CampaignComposerBrowser extends Application {
     _: Partial<ApplicationOptions> | undefined,
   ): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
-    const docs = await module.client.documentsGet();
+    const docs = await module.client.listDocuments();
     return {
       entities: docs,
     };
@@ -79,7 +79,7 @@ async function importDocument(
   docId: string,
   client: DefaultApi,
 ): Promise<void> {
-  const doc = await client.documentsDocIdGet({ docId });
+  const doc = await client.getDocument({ docId });
   const contents = getContentForDoc(doc);
   const journal = (game as Game).journal!;
   let entry = journal.find(

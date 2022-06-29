@@ -17,6 +17,7 @@ paths:
   /documents:
     get:
       summary: Get a list of metadata for all documents
+      operationId: listDocuments
       responses:
         '200':
           description: OK
@@ -36,6 +37,7 @@ paths:
                       updated: '2022-06-14T04:35:29Z'
   /documents/{docId}:
     get:
+      operationId: getDocument
       parameters:
       - name: docId
         in: path
