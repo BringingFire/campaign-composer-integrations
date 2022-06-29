@@ -1,0 +1,48 @@
+documentType:
+  type: string
+  enum:
+  - entity
+  - scratchpad
+
+documentMeta:
+  type: object
+  required:
+    - id
+    - type
+    - created
+    - updated
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    type:
+      $ref: '#/documentType'
+    created:
+      type: string
+    updated:
+      type: string
+
+document:
+  type: object
+  required:
+    - id
+    - type
+    - created
+    - updated
+    - contents
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    type:
+      $ref: '#/documentType'
+    created:
+      type: string
+    updated:
+      type: string
+    contents:
+      type: array
+      items:
+        $ref: './block.yaml#/block'

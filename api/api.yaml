@@ -26,7 +26,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './document.yaml#/components/schemas/documentMeta'
+                  $ref: './models/document.yaml#/documentMeta'
               examples:
                 default:
                   value:
@@ -50,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './document.yaml#/components/schemas/document'
+                $ref: './models/document.yaml#/document'
               examples:
                 default:
                   value:

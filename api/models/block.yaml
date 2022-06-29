@@ -1,0 +1,102 @@
+blockType:
+  type: string
+  enum:
+    - heading
+    - paragraph
+    - listItem
+    - embed
+
+block:
+  type: object
+  required:
+    - id
+    - type
+    - contents
+  properties:
+    id:
+      type: string
+    type:
+      $ref: '#/blockType'
+    contents:
+      type: string
+    attributes:
+      $ref: '#/blockAttributes'
+
+runAttributes:
+  type: object
+  required:
+    - start
+    - end
+  properties:
+    start:
+      type: integer
+    end:
+      type: integer
+    isBold:
+      type: boolean
+    isItalic:
+      type: boolean
+    isUnderline:
+      type: boolean
+    isStrikethrough:
+      type: boolean
+    linkUrl:
+      type: string
+
+blockAttributeHeaderLevel:
+  type: object
+  required:
+    - level
+  properties:
+    level:
+      type: integer
+
+blockAttributeListIndent:
+  type: object
+  required:
+    - level
+  properties:
+    level:
+      type: integer
+
+blockAttribute:
+    type: object
+    discriminator:
+      propertyName: "_t"
+      mapping:
+        headerLevel: '#/blockAttributeHeaderLevel'
+        listIndent: '#/blockAttributeListIndent'
+        listStyle: '#/blockAttributeListStyle'
+    oneOf:
+      - $ref: '#/blockAttributeHeaderLevel'
+      - $ref: '#/blockAttributeListIndent'
+      - $ref: '#/blockAttributeListStyle'
+    properties:
+      _t:
+        type: string
+
+blockAttributeListStyle:
+  type: object
+  required:
+    - style
+  properties:
+    style:
+      type: string
+      enum:
+        - ordered
+        - unOrdered
+
+blockAttributes:
+  type: object
+  required:
+    - runAttributes
+    - blockAttributes
+  properties:
+    runAttributes:
+      type: array
+      items:
+        $ref: '#/runAttributes'
+    blockAttributes:
+      type: array
+      items:
+        $ref: '#/blockAttribute'
