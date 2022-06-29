@@ -110,7 +110,7 @@ async function updateEntry(
   notify: boolean,
 ): Promise<void> {
   const entryData: Record<string, unknown> = {
-    name: doc.title ?? '',
+    name: doc.title ?? 'Untitled Document',
     content: contents.html,
   };
   await entry.update(entryData);
@@ -129,7 +129,7 @@ async function createNewEntry(
   const folder = await getFolder();
 
   const entryData: JournalEntryDataConstructorData = {
-    name: doc.title ?? '',
+    name: doc.title ?? 'Untitled Document',
     content: contents.html,
     folder: folder.id,
     flags: {
