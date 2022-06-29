@@ -1,6 +1,7 @@
 import { JournalEntryDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/journalEntryData';
 import {
   BlockAttributeHeaderLevel,
+  BlockAttributeLinkedDocument,
   BlockAttributeListIndent,
   BlockAttributeListStyle,
   BlockAttributeListStyleStyleEnum,
@@ -216,6 +217,14 @@ function getContentForDoc(doc: CCDocument): DocContents {
             return `${listState.match(listIndent, listStyle)}<li>${
               b.contents
             }</li>`;
+          }
+          case BlockType.Embed: {
+            const embedAttr = b.attributes?.blockAttributes.find(
+              (attr) => attr._t === 'linkedDocument',
+            ) as BlockAttributeLinkedDocument;
+            return `${listState.closeList()}<b>Embedded content from ${
+              embedAttr.docId
+            }</b>`;
           }
           default: {
             console.error(`Unknown block type: ${b.type}`);

@@ -59,22 +59,6 @@ blockAttributeListIndent:
     level:
       type: integer
 
-blockAttribute:
-    type: object
-    discriminator:
-      propertyName: "_t"
-      mapping:
-        headerLevel: '#/blockAttributeHeaderLevel'
-        listIndent: '#/blockAttributeListIndent'
-        listStyle: '#/blockAttributeListStyle'
-    oneOf:
-      - $ref: '#/blockAttributeHeaderLevel'
-      - $ref: '#/blockAttributeListIndent'
-      - $ref: '#/blockAttributeListStyle'
-    properties:
-      _t:
-        type: string
-
 blockAttributeListStyle:
   type: object
   required:
@@ -85,6 +69,34 @@ blockAttributeListStyle:
       enum:
         - ordered
         - unOrdered
+
+blockAttributeLinkedDocument:
+  type: object
+  required:
+    - docId
+  properties:
+    docId:
+      type: string
+    startBlockId:
+      type: string
+
+blockAttribute:
+    type: object
+    discriminator:
+      propertyName: "_t"
+      mapping:
+        headerLevel: '#/blockAttributeHeaderLevel'
+        listIndent: '#/blockAttributeListIndent'
+        listStyle: '#/blockAttributeListStyle'
+        linkedDocument: '#/blockAttributeLinkedDocument'
+    oneOf:
+      - $ref: '#/blockAttributeHeaderLevel'
+      - $ref: '#/blockAttributeListIndent'
+      - $ref: '#/blockAttributeListStyle'
+      - $ref: '#/blockAttributeLinkedDocument'
+    properties:
+      _t:
+        type: string
 
 blockAttributes:
   type: object
