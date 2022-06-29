@@ -6,7 +6,8 @@ import {
   BlockAttributeListStyleStyleEnum,
   BlockType,
   DefaultApi,
-  Document as CCDocument
+  Document as CCDocument,
+  DocumentMeta,
 } from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from './constants';
 import { CCModuleData } from './types';
@@ -30,7 +31,15 @@ export default class CampaignComposerBrowser extends Application {
 
   override async getData(): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
-    const docs = await module.client.listDocuments();
+    let docs: DocumentMeta[];
+    try {
+      docs = await module.client.listDocuments();
+    } catch (e) {
+      console.error(e);
+      ui.notifications?.error('Could not connect to Campaign Composer');
+      throw e;
+    }
+
     return {
       entities: docs,
     };

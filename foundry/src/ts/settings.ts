@@ -1,4 +1,6 @@
+import { Configuration, DefaultApi } from 'campaign-composer-api';
 import { moduleName } from './constants';
+import { CCModuleData } from './types';
 
 const apiUrlKey = 'apiUrl';
 const apiKeyKey = 'apiKey';
@@ -16,10 +18,7 @@ export default class BridgeSettings {
       config: true, // This specifies that the setting appears in the configuration view
       type: String,
       default: 'http://localhost:4492', // The default value for the setting
-      onChange: (value) => {
-        // A callback function which triggers when the setting is changed
-        console.log(`Set composer api url to: "${value}"`);
-      },
+      onChange: BridgeSettings.updateModuleClient,
     });
 
     game.settings.register(moduleName, apiKeyKey, {
@@ -29,10 +28,7 @@ export default class BridgeSettings {
       config: true, // This specifies that the setting appears in the configuration view
       type: String,
       default: 'PASSWORD123', // The default value for the setting
-      onChange: (value) => {
-        // A callback function which triggers when the setting is changed
-        console.log(`Set composer api key to: "${value}"`);
-      },
+      onChange: BridgeSettings.updateModuleClient,
     });
   }
 
@@ -42,5 +38,21 @@ export default class BridgeSettings {
 
   public static get apiKey(): string {
     return (game as Game).settings.get(moduleName, apiKeyKey) as string;
+  }
+
+  public static updateModuleClient(): void {
+    const module = (game as Game).modules.get(moduleName) as
+      | CCModuleData
+      | undefined;
+    if (!module) {
+      return;
+    }
+
+    module.client = new DefaultApi(
+      new Configuration({
+        basePath: BridgeSettings.apiUrl,
+        apiKey: BridgeSettings.apiKey,
+      }),
+    );
   }
 }

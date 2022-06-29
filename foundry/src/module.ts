@@ -1,4 +1,3 @@
-import * as api from 'campaign-composer-api';
 import './styles/style.scss';
 import { moduleName } from './ts/constants';
 import CampaignComposerBrowser from './ts/journal';
@@ -18,13 +17,7 @@ Hooks.once('init', () => {
 
   module = game.modules.get(moduleName) as CCModuleData;
   module.browser = new CampaignComposerBrowser();
-
-  module.client = new api.DefaultApi(
-    new api.Configuration({
-      basePath: BridgeSettings.apiUrl,
-      apiKey: BridgeSettings.apiKey,
-    }),
-  );
+  BridgeSettings.updateModuleClient();
 });
 
 Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
