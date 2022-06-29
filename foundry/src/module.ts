@@ -27,7 +27,7 @@ Hooks.once('init', () => {
   );
 });
 
-Hooks.on('renderJournalDirectory', (_: Application, html: any, __: any) => {
+Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
   if (!(game instanceof Game)) {
     throw 'game singleton not initialized';
   }
@@ -39,7 +39,7 @@ Hooks.on('renderJournalDirectory', (_: Application, html: any, __: any) => {
   const button = $(`<button class="cc-journal-button" type="button">
     <img class="cc-journal-button-icon" src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer"/>
   </button>`);
-  button.on('click', (_) => {
+  button.on('click', () => {
     module.browser.render(true);
   });
   html.find('.directory-header .action-buttons').append(button);

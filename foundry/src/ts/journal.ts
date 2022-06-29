@@ -1,3 +1,4 @@
+import { JournalEntryDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/journalEntryData';
 import {
   BlockAttributeHeaderLevel,
   BlockAttributeListIndent,
@@ -5,7 +6,7 @@ import {
   BlockAttributeListStyleStyleEnum,
   BlockType,
   DefaultApi,
-  Document as CCDocument,
+  Document as CCDocument
 } from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from './constants';
 import { CCModuleData } from './types';
@@ -27,9 +28,7 @@ export default class CampaignComposerBrowser extends Application {
     return 'Campaign Composer';
   }
 
-  override async getData(
-    _: Partial<ApplicationOptions> | undefined,
-  ): Promise<object> {
+  override async getData(): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
     const docs = await module.client.listDocuments();
     return {
@@ -52,13 +51,16 @@ export default class CampaignComposerBrowser extends Application {
     const button = event.currentTarget as HTMLElement;
     const action = button.dataset.action;
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
+
     switch (action) {
-      case 'sync-document':
-        await importDocument(
-          (button.closest('.document') as HTMLElement).dataset.documentId!,
-          module.client,
-        );
+      case 'sync-document': {
+        const docId = (button.closest('.document') as HTMLElement).dataset
+          .documentId;
+        if (docId) {
+          await importDocument(docId, module.client);
+        }
         break;
+      }
       default:
         console.error(`Unknown button action: ${action}`);
     }
@@ -82,7 +84,7 @@ async function importDocument(
   const doc = await client.getDocument({ docId });
   const contents = getContentForDoc(doc);
   const journal = (game as Game).journal!;
-  let entry = journal.find(
+  const entry = journal.find(
     (e) => e.getFlag(moduleName, 'documentId') == doc.id,
   );
   if (entry) {
@@ -98,7 +100,7 @@ async function updateEntry(
   contents: DocContents,
   notify: boolean,
 ): Promise<void> {
-  const entryData: any = {
+  const entryData: Record<string, unknown> = {
     name: doc.title ?? '',
     content: contents.html,
   };
@@ -113,16 +115,19 @@ async function createNewEntry(
   doc: CCDocument,
   contents: DocContents,
   notify: boolean,
-  options: Object,
+  options: Record<string, unknown>,
 ) {
-  const folder = await getFolderForDoc(doc);
+  const folder = await getFolder();
 
-  const entryData: any = {
+  const entryData: JournalEntryDataConstructorData = {
     name: doc.title ?? '',
     content: contents.html,
     folder: folder.id,
+    flags: {
+      [moduleName]: contents.flags,
+    },
   };
-  entryData[`flags.${moduleName}`] = contents.flags;
+  console.log(entryData);
 
   /**
    * A hook event that fires when the user is creating a new JournalEntry from a WorldAnvil article.
@@ -143,7 +148,7 @@ async function createNewEntry(
   return entry;
 }
 
-async function getFolderForDoc(_: CCDocument): Promise<Folder> {
+async function getFolder(): Promise<Folder> {
   const folder = (game as Game).folders!.find(
     (f: Folder) =>
       f.data.type === 'JournalEntry' && f.name === defaultFolderName,
@@ -161,8 +166,8 @@ async function getFolderForDoc(_: CCDocument): Promise<Folder> {
 }
 
 interface DocContents {
-  html: String;
-  flags: Object;
+  html: string;
+  flags: Record<string, unknown>;
 }
 
 function getContentForDoc(doc: CCDocument): DocContents {
@@ -175,7 +180,7 @@ function getContentForDoc(doc: CCDocument): DocContents {
         switch (b.type) {
           case BlockType.Paragraph:
             return `${listState.closeList()}<p>${b.contents}</p>`;
-          case BlockType.Heading:
+          case BlockType.Heading: {
             const headingLevel =
               (
                 b.attributes?.blockAttributes.find(
@@ -185,7 +190,8 @@ function getContentForDoc(doc: CCDocument): DocContents {
             return `${listState.closeList()}</section>\n<section>\n<h${headingLevel}>${
               b.contents
             }</h${headingLevel}>`;
-          case BlockType.ListItem:
+          }
+          case BlockType.ListItem: {
             const listIndent =
               (
                 b.attributes?.blockAttributes.find(
@@ -201,14 +207,16 @@ function getContentForDoc(doc: CCDocument): DocContents {
             return `${listState.match(listIndent, listStyle)}<li>${
               b.contents
             }</li>`;
-          default:
+          }
+          default: {
             console.error(`Unknown block type: ${b.type}`);
             return `${listState.closeList()}<p>${b.contents}</p>`;
+          }
         }
       })
       .join('\n') +
     listState.closeList();
-    '</section>';
+  ('</section>');
 
   return {
     html,
@@ -233,7 +241,7 @@ class ListState {
 
     let result = '';
     while (this.level >= 0) {
-      result != `</${this.tag}>\n`;
+      result += `</${this.tag}>\n`;
       this.level -= 1;
     }
     this.type = undefined;
