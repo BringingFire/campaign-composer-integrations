@@ -6,9 +6,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "watch": "tsc && vite build --watch",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist node_modules",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "link-foundry": "ln -s $PWD/dist \"$HOME/Library/Application Support/FoundryVTT/Data/modules/campaign-composer-bridge\""
   },
   "devDependencies": {
     "@league-of-foundry-developers/foundry-vtt-types": "^9.269.0",
@@ -25,7 +25,6 @@
     "vite": "^2.9.9"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "campaign-composer-api": "file:../api/out/typescript"
+    "campaign-composer-api": "file:../api/dist/typescript"
   }
 }

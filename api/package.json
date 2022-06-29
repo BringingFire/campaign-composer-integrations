@@ -1,0 +1,16 @@
+{
+  "name": "campaign-composer-api",
+  "version": "1.0.0",
+  "author": "Bringing Fire, Inc.",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist node_modules",
+    "validate": "openapi-generator-cli validate -i src/api.yaml",
+    "build": "yarn build-ts",
+    "build-ts": "openapi-generator-cli generate -i src/api.yaml -g typescript-fetch --additional-properties=npmName=campaign-composer-api,modelPropertyNaming=original -o dist/typescript && cd dist/typescript && yarn && yarn build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.1"
+  }
+}
