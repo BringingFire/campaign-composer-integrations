@@ -36,12 +36,11 @@ export default defineConfig({
 function updateModuleManifestPlugin(): Plugin {
   return {
     name: 'update-module-manifest',
-    async writeBundle(options, bundle): Promise<void> {
+    async writeBundle(): Promise<void> {
       const packageContents = JSON.parse(
         await fsPromises.readFile('./package.json', 'utf-8'),
       ) as Record<string, unknown>;
       const version = packageContents.version as string;
-      const name = packageContents.name as string;
       const manifestContents: string = await fsPromises.readFile(
         'src/module.json',
         'utf-8',
@@ -53,9 +52,9 @@ function updateModuleManifestPlugin(): Plugin {
       const baseUrl = 'https://bfdist.us-east-1.linodeobjects.com/foundry';
       manifestJson['version'] = version;
       manifestJson['manifest'] = `${baseUrl}/module.json`;
-      manifestJson['download'] = `${baseUrl}/${name}-${version}.zip`;
+      manifestJson['download'] = `${baseUrl}/release-${version}.zip`;
       await fsPromises.writeFile(
-        'dist/manifest.json',
+        'dist/module.json',
         JSON.stringify(manifestJson),
       );
     },

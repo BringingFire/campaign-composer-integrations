@@ -10,7 +10,13 @@
       "url": "bringingfire.com"
     }
   ],
+  "languages": [],
+  "packs": [],
+  "system": [],
+  "dependencies": [],
+  "scripts": [],
   "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9",
   "styles": ["style.css"],
   "esmodules": ["scripts/module.js"]
 }

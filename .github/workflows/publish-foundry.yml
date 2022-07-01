@@ -1,0 +1,153 @@
+name: Publish Foundry
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Extract info from package.json
+        working-directory: foundry
+        run: |
+          echo "RELEASE_VERSION=$(< package.json jq -r .version)" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$(< package.json jq -r .name)" >> $GITHUB_ENV
+      
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install required tools
+        run: |
+          corepack enable
+          sudo pip install s3cmd
+
+      - name: Set up s3cmd
+        run: |
+          cat > ~/.s3cfg <<EOF
+          [default]
+          access_key = ${{ secrets.LINODE_ACCESS_KEY }}
+          secret_key = ${{ secrets.LINODE_SECRET_KEY }}
+          website_endpoint = http://%(bucket)s.s3-website-%(location)s.amazonaws.com/
+          host_base = us-east-1.linodeobjects.com
+          host_bucket = %(bucket)s.us-east-1.linodeobjects.com
+          bucket_location = US
+          access_token = 
+          add_encoding_exts = 
+          add_headers = 
+          ca_certs_file = 
+          cache_file = 
+          check_ssl_certificate = True
+          check_ssl_hostname = True
+          cloudfront_host = cloudfront.amazonaws.com
+          connection_max_age = 5
+          connection_pooling = True
+          content_disposition = 
+          content_type = 
+          default_mime_type = binary/octet-stream
+          delay_updates = False
+          delete_after = False
+          delete_after_fetch = False
+          delete_removed = False
+          dry_run = False
+          enable_multipart = True
+          encoding = utf-8
+          encrypt = False
+          expiry_date = 
+          expiry_days = 
+          expiry_prefix = 
+          follow_symlinks = False
+          force = False
+          get_continue = False
+          gpg_command = /usr/local/MacGPG2/bin/gpg
+          gpg_decrypt = %(gpg_command)s -d --verbose --no-use-agent --batch --yes --passphrase-fd %(passphrase_fd)s -o %(output_file)s %(input_file)s
+          gpg_encrypt = %(gpg_command)s -c --verbose --no-use-agent --batch --yes --passphrase-fd %(passphrase_fd)s -o %(output_file)s %(input_file)s
+          gpg_passphrase = 
+          guess_mime_type = True
+          human_readable_sizes = False
+          invalidate_default_index_on_cf = False
+          invalidate_default_index_root_on_cf = True
+          invalidate_on_cf = False
+          kms_key = 
+          limit = -1
+          limitrate = 0
+          list_md5 = False
+          log_target_prefix = 
+          long_listing = False
+          max_delete = -1
+          mime_type = 
+          multipart_chunk_size_mb = 15
+          multipart_copy_chunk_size_mb = 1024
+          multipart_max_chunks = 10000
+          preserve_attrs = True
+          progress_meter = True
+          proxy_host = 
+          proxy_port = 0
+          public_url_use_https = False
+          put_continue = False
+          recursive = False
+          recv_chunk = 65536
+          reduced_redundancy = False
+          requester_pays = False
+          restore_days = 1
+          restore_priority = Standard
+          send_chunk = 65536
+          server_side_encryption = False
+          signature_v2 = False
+          signurl_use_https = False
+          simpledb_host = sdb.amazonaws.com
+          skip_existing = False
+          socket_timeout = 300
+          ssl_client_cert_file = 
+          ssl_client_key_file = 
+          stats = False
+          stop_on_error = False
+          storage_class = 
+          throttle_max = 100
+          upload_id = 
+          urlencoding_mode = normal
+          use_http_expect = False
+          use_https = True
+          use_mime_magic = True
+          verbosity = WARNING
+          website_error = 
+          website_index = index.html
+          EOF
+      
+      - name: Build api client
+        working-directory: api
+        run: |
+          yarn
+          yarn build
+
+      - name: Build foundry module
+        working-directory: foundry
+        run: |
+          yarn
+          yarn build
+      
+      - name: Create archive
+        working-directory: foundry
+        run: |
+          release_dir_name="$RELEASE_NAME-release-$RELEASE_VERSION"
+          release_archive_name="release-$RELEASE_VERSION.zip"
+          mv dist $release_dir_name
+          mkdir dist
+          cp $release_dir_name/module.json dist/module.json
+          zip -r "dist/$release_archive_name" $release_dir_name
+
+      - name: Publish to public storage
+        working-directory: foundry/dist
+        run: |
+          s3cmd \
+            --no-mime-magic \
+            --acl-public \
+            sync . s3://bfdist/foundry/
