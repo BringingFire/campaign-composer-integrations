@@ -10,7 +10,6 @@
       "url": "bringingfire.com"
     }
   ],
-  "version": "0.0.1",
   "minimumCoreVersion": "9",
   "styles": ["style.css"],
   "esmodules": ["scripts/module.js"]
