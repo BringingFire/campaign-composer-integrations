@@ -7,9 +7,10 @@
     {
       "name": "Bringing Fire, Inc.",
       "email": "engineering@bringingfire.com",
-      "url": "bringingfire.com"
+      "url": "https://bringingfire.com"
     }
   ],
+  "url": "https://github.com/BringingFire/campaign-composer-integrations",
   "languages": [],
   "packs": [],
   "system": [],
