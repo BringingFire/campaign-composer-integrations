@@ -13,7 +13,6 @@ export default class BridgeSettings {
 
     game.settings.register(moduleName, apiUrlKey, {
       name: 'Campaign Composer API URL',
-      hint: 'TODO',
       scope: 'client', // This specifies a client-stored setting
       config: true, // This specifies that the setting appears in the configuration view
       type: String,
@@ -23,7 +22,6 @@ export default class BridgeSettings {
 
     game.settings.register(moduleName, apiKeyKey, {
       name: 'Campaign Composer API Key',
-      hint: 'TODO',
       scope: 'client', // This specifies a client-stored setting
       config: true, // This specifies that the setting appears in the configuration view
       type: String,
