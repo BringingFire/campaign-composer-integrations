@@ -33,14 +33,32 @@
 </article>
 {{/inline}}
 
+{{#*inline "mapPartial"}}
+<article class="map flexrow" data-map-id="{{ this.id }}" data-entry-id="{{ this.entry.id }}">
+    <img class="map-thumbnail" src="data:image/jpeg;base64,{{this.background.imageBytes}}" />
+    <h3 class="map-title">{{#if this.title}}{{ this.title }}{{else}}Untitled Map{{/if}}</h3>
+    <div class="controls">
+        <button type="button" class="campaign-composer-control" data-action="sync-map" title="Sync">
+            <i class="fas fa-file-import fa-fw"></i>
+        </button>
+    </div>
+</article>
+{{/inline}}
+
 <section>
   <header>
-    <h2>Campaign Composer</h2>
+    <h2>Documents</h2>
   </header>
+  {{#each documents}}
+  {{> "documentPartial"}}
+  {{/each}}
 </section>
 
 <section>
-  {{#each entities}}
-  {{> "documentPartial"}}
+  <header>
+    <h2>Maps</h2>
+  </header>
+  {{#each maps}}
+  {{> "mapPartial"}}
   {{/each}}
 </section>

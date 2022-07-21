@@ -1,0 +1,41 @@
+backgroundImageFormat:
+  type: string
+  enum:
+    - jpeg
+    - png
+
+mapBackground:
+  type: object
+  required:
+    - imageBytes
+    - width
+    - height
+    - format
+  properties:
+    imageBytes:
+      type: string
+    width:
+      type: integer
+    height:
+      type: integer
+    format:
+      $ref: '#/backgroundImageFormat'
+
+# Just calling it "map" conflicts with at least the Typescript code generator.
+cMap:
+  type: object
+  required:
+    - id
+    - created
+    - updated
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    created:
+      type: string
+    updated:
+      type: string
+    background:
+      $ref: '#/mapBackground'

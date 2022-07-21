@@ -1,4 +1,5 @@
 import { JournalEntryDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/journalEntryData';
+import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
 import {
   BlockAttributeHeaderLevel,
   BlockAttributeLinkedDocument,
@@ -6,6 +7,7 @@ import {
   BlockAttributeListStyle,
   BlockAttributeListStyleStyleEnum,
   BlockType,
+  CMap,
   DefaultApi,
   Document as CCDocument,
   DocumentMeta,
@@ -33,8 +35,10 @@ export default class CampaignComposerBrowser extends Application {
   override async getData(): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
     let docs: DocumentMeta[];
+    let maps: CMap[];
     try {
       docs = await module.client.listDocuments();
+      maps = await module.client.listMaps();
     } catch (e) {
       console.error(e);
       ui.notifications?.error('Could not connect to Campaign Composer');
@@ -42,7 +46,8 @@ export default class CampaignComposerBrowser extends Application {
     }
 
     return {
-      entities: docs,
+      documents: docs,
+      maps: maps,
     };
   }
 
@@ -68,6 +73,13 @@ export default class CampaignComposerBrowser extends Application {
           .documentId;
         if (docId) {
           await importDocument(docId, module.client);
+        }
+        break;
+      }
+      case 'sync-map': {
+        const mapId = (button.closest('.map') as HTMLElement).dataset.mapId;
+        if (mapId) {
+          await importMap(mapId, module.client);
         }
         break;
       }
@@ -139,14 +151,6 @@ async function createNewEntry(
   };
   console.log(entryData);
 
-  /**
-   * A hook event that fires when the user is creating a new JournalEntry from a WorldAnvil article.
-   * @function WACreateJournalEntry
-   * @memberof hookEvents
-   * @param {JournalEntryData} entryData    The JournalEntry data which will be created
-   * @param {Article} article                 The original Article
-   * @param {ParsedArticleResult} content   The parsed article content
-   */
   // Hooks.callAll(`WACreateJournalEntry`, entryData, doc, content);
 
   // Create the entry, notify, and return
@@ -156,6 +160,77 @@ async function createNewEntry(
       `Imported Campaign Composer document ${doc.title ?? 'Untitled Document'}`,
     );
   return entry;
+}
+
+async function importMap(mapId: string, client: DefaultApi): Promise<void> {
+  const map = await client.getMap({ mapId });
+  const background = map.background;
+  if (!background) {
+    ui.notifications!.warn(`Cannot import a map without an image`);
+    return;
+  }
+
+  const scene = Scenes.instance.find(
+    (s) => s.getFlag(moduleName, 'mapId') == map.id,
+  );
+  if (scene) {
+    console.log(`Map already imported as scene ${scene.id}`);
+    return;
+  }
+
+  return createSceneFromMap(map);
+}
+
+async function createSceneFromMap(map: CMap): Promise<void> {
+  const background = map.background;
+  if (!background) {
+    ui.notifications!.warn(`Cannot import a map without an image`);
+    return;
+  }
+
+  const backgroundFile = new File(
+    [b64ToBlob(background.imageBytes)],
+    `${map.id}.${background.format}`,
+  );
+  try {
+    await FilePicker.createDirectory('data', 'campaign-composer');
+  } catch (e) {
+    console.log('Campaign composer assets directory already exists');
+  }
+  await FilePicker.upload('data', 'campaign-composer', backgroundFile);
+
+  const sceneData: SceneDataConstructorData = {
+    name: map.title ?? 'Untitled Map',
+    width: background.width,
+    height: background.height,
+    img: `campaign-composer/${backgroundFile.name}`,
+    flags: {
+      [moduleName]: {
+        mapId: map.id,
+      },
+    },
+  };
+  const scene = await Scene.create(sceneData);
+  console.log('created scene');
+
+  const thumbnail = await scene?.createThumbnail();
+  console.log(thumbnail);
+  scene?.update({
+    thumb: thumbnail?.thumb,
+  });
+  console.log('created thumbnail');
+
+  // Scene.create(sceneData)
+  // const contents = getContentForDoc(doc);
+  // const journal = (game as Game).journal!;
+  // const entry = journal.find(
+  //   (e) => e.getFlag(moduleName, 'documentId') == doc.id,
+  // );
+  // if (entry) {
+  //   await updateEntry(entry, doc, contents, true);
+  //   return;
+  // }
+  // await createNewEntry(doc, contents, true, {});
 }
 
 async function getFolder(): Promise<Folder> {
@@ -287,4 +362,16 @@ class ListState {
 
     return result;
   }
+}
+
+function b64ToBlob(bytes: string): Blob {
+  const byteString = atob(bytes);
+
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+
+  return new Blob([ab]);
 }
