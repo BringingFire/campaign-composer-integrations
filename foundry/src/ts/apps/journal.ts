@@ -10,10 +10,11 @@ import {
   Document as CCDocument,
   DocumentMeta,
 } from 'campaign-composer-api';
-import { defaultFolderName, moduleName } from './constants';
-import { CCModuleData } from './types';
+import { defaultFolderName, moduleName } from '../constants';
+import { ensureFolder } from '../foundryHelpers';
+import { CCModuleData } from '../types';
 
-export default class CampaignComposerBrowser extends Application {
+export default class CampaignComposerJournalBrowser extends Application {
   static override get defaultOptions(): ApplicationOptions {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: 'campaign-composer-browser',
@@ -42,7 +43,7 @@ export default class CampaignComposerBrowser extends Application {
     }
 
     return {
-      entities: docs,
+      documents: docs,
     };
   }
 
@@ -127,7 +128,10 @@ async function createNewEntry(
   notify: boolean,
   options: Record<string, unknown>,
 ) {
-  const folder = await getFolder();
+  const folder = await ensureFolder({
+    type: 'JournalEntry',
+    name: defaultFolderName,
+  });
 
   const entryData: JournalEntryDataConstructorData = {
     name: doc.title ?? 'Untitled Document',
@@ -139,14 +143,6 @@ async function createNewEntry(
   };
   console.log(entryData);
 
-  /**
-   * A hook event that fires when the user is creating a new JournalEntry from a WorldAnvil article.
-   * @function WACreateJournalEntry
-   * @memberof hookEvents
-   * @param {JournalEntryData} entryData    The JournalEntry data which will be created
-   * @param {Article} article                 The original Article
-   * @param {ParsedArticleResult} content   The parsed article content
-   */
   // Hooks.callAll(`WACreateJournalEntry`, entryData, doc, content);
 
   // Create the entry, notify, and return
@@ -156,23 +152,6 @@ async function createNewEntry(
       `Imported Campaign Composer document ${doc.title ?? 'Untitled Document'}`,
     );
   return entry;
-}
-
-async function getFolder(): Promise<Folder> {
-  const folder = (game as Game).folders!.find(
-    (f: Folder) =>
-      f.data.type === 'JournalEntry' && f.name === defaultFolderName,
-  );
-  if (folder) return folder;
-
-  // Create a new Folder
-  const newFolder = await Folder.create({
-    name: defaultFolderName,
-    type: 'JournalEntry',
-    sorting: 'm',
-  });
-
-  return newFolder as Folder;
 }
 
 interface DocContents {

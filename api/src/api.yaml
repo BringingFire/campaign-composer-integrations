@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   title: Campaign Composer REST API
-  version: "1.0.0"
+  version: "1.1.0"
 
 components:
   securitySchemes:
@@ -65,3 +65,55 @@ paths:
                       - id: A90BA1E5-4520-40BE-A5B5-8FE019486EF8
                         type: paragraph
                         contents: 'Section body'
+  /maps:
+    get:
+      summary: Get a list of all maps
+      operationId: listMaps
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/map.yaml#/cMap'
+              examples:
+                default:
+                  value:
+                    id: 590B91E5-4520-40CE-A5B5-8FA219486EF8
+                    title: Map title
+                    created: '2022-06-14T04:35:29Z'
+                    updated: '2022-06-14T04:35:29Z'
+  /maps/{mapId}:
+    get:
+      operationId: getMap
+      parameters:
+      - name: mapId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/map.yaml#/cMap'
+  /maps/{mapId}/background:
+    get:
+      operationId: getMapBackground
+      parameters:
+      - name: mapId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/map.yaml#/mapBackground'
