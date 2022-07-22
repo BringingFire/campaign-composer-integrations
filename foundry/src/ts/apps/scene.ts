@@ -115,19 +115,19 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
 
   const scene = Scenes.instance.find(
     (s) => s.getFlag(moduleName, 'mapId') == map.id,
-  );
+  ) as StoredDocument<Scene> | undefined;
   if (scene) {
     console.log(`Map already imported as scene ${scene.id}`);
-    return;
+    return updateSceneFromMap(scene, { cMap: map, background: background });
   }
 
-  return createSceneFromMap(map, background);
+  return createSceneFromMap({ cMap: map, background: background });
 }
 
-async function createSceneFromMap(
-  map: CMap,
-  background: MapBackground,
-): Promise<void> {
+async function createSceneFromMap({
+  cMap,
+  background,
+}: MapWithBackground): Promise<void> {
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
@@ -137,24 +137,30 @@ async function createSceneFromMap(
 
   const backgroundFile = new File(
     [b64ToBlob(background.image)],
-    `${map.id}.${background.format}`,
+    `${cMap.id}.${background.format}`,
   );
   await ensureDirectory({ type: 'data', path: 'campaign-composer' });
   await FilePicker.upload('data', 'campaign-composer', backgroundFile);
 
   const sceneData: SceneDataConstructorData = {
-    name: map.title ?? 'Untitled Map',
+    name: cMap.title ?? 'Untitled Map',
     width: background.width,
     height: background.height,
     img: `campaign-composer/${backgroundFile.name}`,
     flags: {
       [moduleName]: {
-        mapId: map.id,
+        mapId: cMap.id,
       },
     },
     folder: folder.id,
   };
   const scene = await Scene.create(sceneData);
+  if (!scene) {
+    ui.notifications!.warn(
+      `Unknown error occurred importing ${sceneData.name}`,
+    );
+    return;
+  }
   console.log('created scene');
 
   const thumbnail = await scene?.createThumbnail();
@@ -163,6 +169,34 @@ async function createSceneFromMap(
     thumb: thumbnail?.thumb,
   });
   console.log('created thumbnail');
+
+  ui.notifications!.info(`Imported scene ${scene.name}`);
+}
+
+async function updateSceneFromMap(
+  scene: StoredDocument<Scene>,
+  { cMap, background }: MapWithBackground,
+): Promise<void> {
+  const backgroundFile = new File(
+    [b64ToBlob(background.image)],
+    `${cMap.id}.${background.format}`,
+  );
+  await ensureDirectory({ type: 'data', path: 'campaign-composer' });
+  await FilePicker.upload('data', 'campaign-composer', backgroundFile);
+
+  const sceneData: SceneDataConstructorData = {
+    name: cMap.title ?? 'Untitled Map',
+    width: background.width,
+    height: background.height,
+    img: `campaign-composer/${backgroundFile.name}`,
+    flags: {
+      [moduleName]: {
+        mapId: cMap.id,
+      },
+    },
+  };
+  await scene.update(sceneData);
+  ui.notifications!.info(`Updated scene ${sceneData.name}`);
 }
 
 function b64ToBlob(bytes: string): Blob {
