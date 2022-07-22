@@ -1,0 +1,20 @@
+{{#*inline "mapPartial"}}
+<article class="map flexrow" data-map-id="{{ this.cMap.id }}">
+    <img class="map-thumbnail" src="data:image/jpeg;base64,{{this.background.image}}" />
+    <h3 class="map-title">{{#if this.cMap.title}}{{ this.cMap.title }}{{else}}Untitled Map{{/if}}</h3>
+    <div class="controls">
+        <button type="button" class="campaign-composer-control" data-action="sync-map" title="Sync">
+            <i class="fas fa-file-import fa-fw"></i>
+        </button>
+    </div>
+</article>
+{{/inline}}
+
+<section>
+  <header>
+    <h2>Maps</h2>
+  </header>
+  {{#each maps}}
+  {{> "mapPartial"}}
+  {{/each}}
+</section>
