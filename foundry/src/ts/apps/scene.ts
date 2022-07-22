@@ -1,7 +1,8 @@
 import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
 import { CMap, DefaultApi, MapBackground } from 'campaign-composer-api';
-import { moduleName } from './constants';
-import { CCModuleData } from './types';
+import { defaultFolderName, moduleName } from '../constants';
+import { ensureDirectory, ensureFolder } from '../foundryHelpers';
+import { CCModuleData } from '../types';
 
 interface MapWithBackground {
   cMap: CMap;
@@ -132,15 +133,13 @@ async function createSceneFromMap(
     return;
   }
 
+  const folder = await ensureFolder({ type: 'Scene', name: defaultFolderName });
+
   const backgroundFile = new File(
     [b64ToBlob(background.image)],
     `${map.id}.${background.format}`,
   );
-  try {
-    await FilePicker.createDirectory('data', 'campaign-composer');
-  } catch (e) {
-    console.log('Campaign composer assets directory already exists');
-  }
+  await ensureDirectory({ type: 'data', path: 'campaign-composer' });
   await FilePicker.upload('data', 'campaign-composer', backgroundFile);
 
   const sceneData: SceneDataConstructorData = {
@@ -153,6 +152,7 @@ async function createSceneFromMap(
         mapId: map.id,
       },
     },
+    folder: folder.id,
   };
   const scene = await Scene.create(sceneData);
   console.log('created scene');
