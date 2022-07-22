@@ -7,12 +7,12 @@ backgroundImageFormat:
 mapBackground:
   type: object
   required:
-    - imageBytes
+    - image
     - width
     - height
     - format
   properties:
-    imageBytes:
+    image:
       type: string
     width:
       type: integer
@@ -37,5 +37,3 @@ cMap:
       type: string
     updated:
       type: string
-    background:
-      $ref: '#/mapBackground'

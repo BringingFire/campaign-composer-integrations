@@ -11,9 +11,15 @@ import {
   DefaultApi,
   Document as CCDocument,
   DocumentMeta,
+  MapBackground
 } from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from './constants';
 import { CCModuleData } from './types';
+
+interface MapWithBackground {
+  cMap: CMap;
+  background: MapBackground;
+}
 
 export default class CampaignComposerBrowser extends Application {
   static override get defaultOptions(): ApplicationOptions {
@@ -35,10 +41,28 @@ export default class CampaignComposerBrowser extends Application {
   override async getData(): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
     let docs: DocumentMeta[];
-    let maps: CMap[];
+    let mapsWithBackgrounds: MapWithBackground[];
     try {
       docs = await module.client.listDocuments();
-      maps = await module.client.listMaps();
+      const maps = await module.client.listMaps();
+      mapsWithBackgrounds = (
+        await Promise.all(
+          maps.map(async (cMap) => {
+            try {
+              const background = await module.client.getMapBackground({
+                mapId: cMap.id,
+              });
+              return {
+                cMap: cMap,
+                background,
+              };
+            } catch (e) {
+              console.log(`Failed to fetch background for map ${cMap.id}`, e);
+            }
+            return undefined;
+          }),
+        )
+      ).filter((m): m is MapWithBackground => !!m);
     } catch (e) {
       console.error(e);
       ui.notifications?.error('Could not connect to Campaign Composer');
@@ -47,7 +71,7 @@ export default class CampaignComposerBrowser extends Application {
 
     return {
       documents: docs,
-      maps: maps,
+      maps: mapsWithBackgrounds,
     };
   }
 
@@ -80,6 +104,8 @@ export default class CampaignComposerBrowser extends Application {
         const mapId = (button.closest('.map') as HTMLElement).dataset.mapId;
         if (mapId) {
           await importMap(mapId, module.client);
+        } else {
+          console.log('Could not load mapId');
         }
         break;
       }
@@ -163,8 +189,11 @@ async function createNewEntry(
 }
 
 async function importMap(mapId: string, client: DefaultApi): Promise<void> {
+  console.log('importing map to scene');
   const map = await client.getMap({ mapId });
-  const background = map.background;
+  console.log('fetched map');
+  const background = await client.getMapBackground({ mapId });
+  console.log('fetched background');
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
@@ -178,18 +207,20 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
     return;
   }
 
-  return createSceneFromMap(map);
+  return createSceneFromMap(map, background);
 }
 
-async function createSceneFromMap(map: CMap): Promise<void> {
-  const background = map.background;
+async function createSceneFromMap(
+  map: CMap,
+  background: MapBackground,
+): Promise<void> {
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
   }
 
   const backgroundFile = new File(
-    [b64ToBlob(background.imageBytes)],
+    [b64ToBlob(background.image)],
     `${map.id}.${background.format}`,
   );
   try {

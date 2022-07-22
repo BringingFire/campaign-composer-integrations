@@ -101,3 +101,19 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/cMap'
+  /maps/{mapId}/background:
+    get:
+      operationId: getMapBackground
+      parameters:
+      - name: mapId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/map.yaml#/mapBackground'
