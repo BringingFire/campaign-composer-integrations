@@ -11,8 +11,17 @@
 {{/inline}}
 
 <section>
-  <header>
-    <h2>Maps</h2>
+  <header class="flex-header">
+    <h2 class="grow-header">Maps</h2>
+    <button
+        class="campaign-composer-control"
+        type="button"
+        class="campaign-composer-control"
+        data-action="sync-all-maps"
+        title="Sync all"
+    >
+        <i class="fas fa-file-import fa-fw"></i>
+    </button>
   </header>
   {{#each maps}}
   {{> "mapPartial"}}

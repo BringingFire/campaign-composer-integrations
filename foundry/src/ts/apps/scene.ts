@@ -86,6 +86,10 @@ export default class CampaignComposerSceneBrowser extends Application {
         }
         break;
       }
+      case 'sync-all-maps': {
+        importAllMaps(module.client);
+        break;
+      }
       default:
         console.error(`Unknown button action: ${action}`);
     }
@@ -102,13 +106,27 @@ export default class CampaignComposerSceneBrowser extends Application {
   }
 }
 
-async function importMap(mapId: string, client: DefaultApi): Promise<void> {
+async function importAllMaps(client: DefaultApi) {
+  ui.notifications!.warn('Importing all maps, this may take a bit...');
+  const maps = await client.listMaps();
+  for (const map of maps) {
+    await importMap(map.id, client, false);
+  }
+  ui.notifications!.info(`Imported ${maps.length} maps from Campaign Composer`);
+  return;
+}
+
+async function importMap(
+  mapId: string,
+  client: DefaultApi,
+  notify: boolean = true,
+): Promise<void> {
   console.log('importing map to scene');
   const map = await client.getMap({ mapId });
   console.log('fetched map');
   const background = await client.getMapBackground({ mapId });
   console.log('fetched background');
-  if (!background) {
+  if (!background && notify) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
   }
@@ -121,13 +139,13 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
     return updateSceneFromMap(scene, { cMap: map, background: background });
   }
 
-  return createSceneFromMap({ cMap: map, background: background });
+  return createSceneFromMap({ cMap: map, background: background }, notify);
 }
 
-async function createSceneFromMap({
-  cMap,
-  background,
-}: MapWithBackground): Promise<void> {
+async function createSceneFromMap(
+  { cMap, background }: MapWithBackground,
+  notify: boolean = true,
+): Promise<void> {
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
@@ -170,7 +188,9 @@ async function createSceneFromMap({
   });
   console.log('created thumbnail');
 
-  ui.notifications!.info(`Imported scene ${scene.name}`);
+  if (notify) {
+    ui.notifications!.info(`Imported scene ${scene.name}`);
+  }
 }
 
 async function updateSceneFromMap(
