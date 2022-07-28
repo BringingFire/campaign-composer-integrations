@@ -8,7 +8,7 @@ import {
   BlockType,
   DefaultApi,
   Document as CCDocument,
-  DocumentMeta,
+  DocumentMeta
 } from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from '../constants';
 import { ensureFolder } from '../foundryHelpers';
@@ -33,9 +33,23 @@ export default class CampaignComposerJournalBrowser extends Application {
 
   override async getData(): Promise<object> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
-    let docs: DocumentMeta[];
+    let docsByFolder: { folder: string | null; documents: DocumentMeta[] }[];
     try {
-      docs = await module.client.listDocuments();
+      const docs = await module.client.listDocuments();
+      const initial = new Map<
+        string | null,
+        { folder: string | null; documents: DocumentMeta[] }
+      >();
+      initial.set(null, { folder: null, documents: [] });
+      const docsByFolderMap = docs.reduce((acc, doc) => {
+        const folder = doc.folder ?? null;
+        if (!acc.has(folder)) {
+          acc.set(folder, { folder: folder, documents: [] });
+        }
+        acc.get(folder)!.documents.push(doc);
+        return acc;
+      }, initial);
+      docsByFolder = [...docsByFolderMap.values()];
     } catch (e) {
       console.error(e);
       ui.notifications?.error('Could not connect to Campaign Composer');
@@ -43,7 +57,7 @@ export default class CampaignComposerJournalBrowser extends Application {
     }
 
     return {
-      documents: docs,
+      docsByFolder,
     };
   }
 
@@ -72,6 +86,15 @@ export default class CampaignComposerJournalBrowser extends Application {
         }
         break;
       }
+      case 'sync-all-documents': {
+        await importOrSyncAllDocuments(module.client);
+        break;
+      }
+      case 'sync-documents-in-folder': {
+        const folder = button.dataset.folder;
+        await importOrSyncInFolder(module.client, folder);
+        break;
+      }
       default:
         console.error(`Unknown button action: ${action}`);
     }
@@ -88,9 +111,32 @@ export default class CampaignComposerJournalBrowser extends Application {
   }
 }
 
+async function importOrSyncInFolder(client: DefaultApi, folder?: string) {
+  console.log(`Syncing docs in folder ${folder}`);
+  const docs = await client.listDocuments();
+  const filteredDocs = docs.filter((d) => d.folder === folder);
+  await importOrSyncDocuments(client, filteredDocs);
+  return;
+}
+
+async function importOrSyncAllDocuments(client: DefaultApi) {
+  const docs = await client.listDocuments();
+  await importOrSyncDocuments(client, docs);
+}
+
+async function importOrSyncDocuments(client: DefaultApi, docs: DocumentMeta[]) {
+  for (const doc of docs) {
+    await importDocument(doc.id, client, false);
+  }
+  ui.notifications!.info(
+    `Imported ${docs.length} documents from Campaign Composer`,
+  );
+}
+
 async function importDocument(
   docId: string,
   client: DefaultApi,
+  notify: boolean = false,
 ): Promise<void> {
   const doc = await client.getDocument({ docId });
   const contents = getContentForDoc(doc);
@@ -99,10 +145,10 @@ async function importDocument(
     (e) => e.getFlag(moduleName, 'documentId') == doc.id,
   );
   if (entry) {
-    await updateEntry(entry, doc, contents, true);
+    await updateEntry(entry, doc, contents, notify);
     return;
   }
-  await createNewEntry(doc, contents, true, {});
+  await createNewEntry(doc, contents, notify, {});
 }
 
 async function updateEntry(
@@ -128,10 +174,18 @@ async function createNewEntry(
   notify: boolean,
   options: Record<string, unknown>,
 ) {
-  const folder = await ensureFolder({
+  let folder = await ensureFolder({
     type: 'JournalEntry',
     name: defaultFolderName,
   });
+
+  if (doc.folder != null) {
+    folder = await ensureFolder({
+      type: 'JournalEntry',
+      name: doc.folder,
+      parent: folder,
+    });
+  }
 
   const entryData: JournalEntryDataConstructorData = {
     name: doc.title ?? 'Untitled Document',

@@ -46,3 +46,21 @@
     }
   }
 }
+.flex-header {
+  display: flex;
+  flex-direction: row;
+
+  .grow-header {
+    flex-grow: 1;
+    margin-right: 30px;
+  }
+
+  button.campaign-composer-control {
+    width: 32px;
+    height: 30px;
+  }
+}
+
+.composer-folder-section {
+  padding-top: 10px;
+}

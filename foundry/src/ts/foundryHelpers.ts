@@ -1,11 +1,13 @@
 interface GetFolderArgs {
   type: foundry.CONST.FOLDER_DOCUMENT_TYPES;
   name: string;
+  parent?: string | Folder;
 }
 
 export async function ensureFolder({
   type,
   name,
+  parent,
 }: GetFolderArgs): Promise<Folder> {
   const folder = (game as Game).folders!.find(
     (f: Folder) => f.data.type === type && f.name === name,
@@ -16,6 +18,7 @@ export async function ensureFolder({
     name,
     type,
     sorting: 'm',
+    parent: parent,
   });
   return newFolder as Folder;
 }

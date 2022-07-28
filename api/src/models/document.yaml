@@ -18,6 +18,8 @@ documentMeta:
       type: string
     type:
       $ref: '#/documentType'
+    folder:
+      type: string
     created:
       type: string
     updated:
@@ -38,6 +40,8 @@ document:
       type: string
     type:
       $ref: '#/documentType'
+    folder:
+      type: string
     created:
       type: string
     updated:
