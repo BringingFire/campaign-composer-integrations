@@ -21,6 +21,28 @@ mapBackground:
     format:
       $ref: '#/backgroundImageFormat'
 
+mapPoint:
+  type: object
+  required:
+    - x
+    - y
+  properties:
+    x:
+      type: double
+    y:
+      type: double
+
+mapGrid:
+  type: object
+  required:
+    - origin
+    - pixelsPerGrid
+  properties:
+    origin:
+      $ref: '#/mapPoint'
+    pixelsPerGrid:
+      type: integer
+
 # Just calling it "map" conflicts with at least the Typescript code generator.
 cMap:
   type: object
@@ -37,3 +59,5 @@ cMap:
       type: string
     updated:
       type: string
+    grid:
+      $ref: '#/mapGrid'
