@@ -8,7 +8,7 @@ import {
 import { defaultFolderName, moduleName } from '../constants';
 import { ensureDirectory, ensureFolder } from '../foundryHelpers';
 import { CCModuleData } from '../types';
-import { getLights, getWalls } from './uvtt';
+import { getDoors, getLights, getWalls } from './uvtt';
 
 interface MapWithBackground {
   cMap: CMap;
@@ -179,7 +179,9 @@ async function createSceneFromMap({
       paddedOrigin.y = dimensions.sceneRect.y;
     }
     sceneData.lights = getLights(uvtt, paddedOrigin);
-    sceneData.walls = getWalls(uvtt, paddedOrigin);
+    sceneData.walls = getWalls(uvtt, paddedOrigin).concat(
+      getDoors(uvtt, paddedOrigin),
+    );
   }
 
   const scene = await Scene.create(sceneData);

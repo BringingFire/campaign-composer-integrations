@@ -71,3 +71,28 @@ function makeWall(
   }
   return;
 }
+
+export function getDoors(uvtt: Uvtt, origin: Point): WallDataConstructorData[] {
+  const ppg = uvtt.resolution!.pixels_per_grid!;
+  return uvtt.portals!.map((portal) => {
+    const bounds0 = portal.bounds![0];
+    const bounds1 = portal.bounds![1];
+    return {
+      c: [
+        bounds0.x * ppg + origin.x,
+        bounds0.y * ppg + origin.y,
+        bounds1.x * ppg + origin.x,
+        bounds1.y * ppg + origin.y,
+      ],
+      door: portal.closed!
+        ? CONST.WALL_DOOR_TYPES.DOOR
+        : CONST.WALL_DOOR_TYPES.NONE,
+      light: portal.closed
+        ? CONST.WALL_SENSE_TYPES.NORMAL
+        : CONST.WALL_SENSE_TYPES.NONE,
+      sight: portal.closed
+        ? CONST.WALL_SENSE_TYPES.NORMAL
+        : CONST.WALL_SENSE_TYPES.NONE,
+    };
+  });
+}
