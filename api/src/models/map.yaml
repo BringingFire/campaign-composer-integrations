@@ -43,6 +43,12 @@ mapGrid:
     pixelsPerGrid:
       type: integer
 
+mapMetadata:
+  type: object
+  properties:
+    uvtt:
+      $ref: './uvtt.yaml#/uvtt'
+
 # Just calling it "map" conflicts with at least the Typescript code generator.
 cMap:
   type: object

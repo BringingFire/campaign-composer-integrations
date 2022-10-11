@@ -117,3 +117,19 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/mapBackground'
+  /maps/{mapId}/metadata:
+    get:
+      operationId: getMapMetadata
+      parameters:
+      - name: mapId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/map.yaml#/mapMetadata'

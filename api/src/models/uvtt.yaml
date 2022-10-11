@@ -1,0 +1,98 @@
+uvttPoint:
+  type: object
+  required:
+    - x
+    - y
+  properties:
+    x:
+      type: double
+    y:
+      type: double
+
+uvttResolution:
+  type: object
+  properties:
+    pixels_per_grid:
+      type: integer
+    map_origin:
+      $ref: '#/uvttPoint'
+    map_size:
+      $ref: '#/uvttPoint'
+
+uvttPortal:
+  type: object
+  properties:
+    position:
+      $ref: '#/uvttPoint'
+    bounds:
+      type: array
+      items:
+        $ref: '#/uvttPoint'
+    rotation:
+      type: double
+    closed:
+      type: boolean
+    freestanding:
+      type: boolean
+
+uvttEnvironment:
+  type: object
+  properties:
+    baked_lighting:
+      type: boolean
+    ambient_light:
+      type: string
+
+uvttLight:
+  type: object
+  required:
+    - position
+    - range
+    - intensity
+    - color
+    - shadows
+  properties:
+    position:
+      $ref: '#/uvttPoint'
+    range:
+      type: double
+    intensity:
+      type: double
+    color:
+      type: string
+    shadows:
+      type: boolean
+
+uvtt:
+  type: object
+  properties:
+    software:
+      type: string
+    creator:
+      type: string
+    format:
+      type: double
+    resolution:
+      $ref: '#/uvttResolution'
+    line_of_sight:
+      type: array
+      items:
+        type: array
+        items:
+          $ref: '#/uvttPoint'
+    objects_line_of_sight:
+      type: array
+      items:
+        type: array
+        items:
+          $ref: '#/uvttPoint'
+    portals:
+      type: array
+      items:
+        $ref: '#/uvttPortal'
+    environment:
+      $ref: '#/uvttEnvironment'
+    lights:
+      type: array
+      items:
+        $ref: '#/uvttLight'
