@@ -1,11 +1,9 @@
-import { AmbientLightDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/ambientLightData';
 import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
-import { WallDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/wallData';
 import {
   CMap,
   DefaultApi,
   MapBackground,
-  MapMetadata
+  MapMetadata,
 } from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from '../constants';
 import { ensureDirectory, ensureFolder } from '../foundryHelpers';
@@ -154,22 +152,6 @@ async function createSceneFromMap({
   await FilePicker.upload('data', 'campaign-composer', backgroundFile);
   const padding = 0.25;
 
-  let lights: AmbientLightDataConstructorData[] = [];
-  let walls: WallDataConstructorData[] = [];
-  const uvtt = metadata.uvtt;
-  if (uvtt) {
-    const paddedOrigin: Point = {
-      x:
-        (Math.ceil(uvtt.resolution!.map_size!.x * padding) + 1) *
-        uvtt.resolution!.pixels_per_grid!,
-      y:
-        Math.ceil(uvtt.resolution!.map_size!.y * padding) *
-        uvtt.resolution!.pixels_per_grid!,
-    };
-    lights = getLights(uvtt, paddedOrigin);
-    walls = getWalls(uvtt, paddedOrigin);
-  }
-
   const sceneData: SceneDataConstructorData = {
     folder: folder.id,
     name: cMap.title ?? 'Untitled Map',
@@ -178,14 +160,28 @@ async function createSceneFromMap({
     padding: padding,
     grid: cMap.grid?.pixelsPerGrid,
     img: `campaign-composer/${backgroundFile.name}`,
-    lights: lights,
-    walls: walls,
     flags: {
       [moduleName]: {
         mapId: cMap.id,
       },
     },
   };
+
+  const uvtt = metadata.uvtt;
+  if (uvtt) {
+    const paddedOrigin: Point = {
+      x: 0,
+      y: 0,
+    };
+    const dimensions = new Scene(sceneData).dimensions;
+    if ('sceneRect' in dimensions) {
+      paddedOrigin.x = dimensions.sceneRect.x;
+      paddedOrigin.y = dimensions.sceneRect.y;
+    }
+    sceneData.lights = getLights(uvtt, paddedOrigin);
+    sceneData.walls = getWalls(uvtt, paddedOrigin);
+  }
+
   const scene = await Scene.create(sceneData);
   if (!scene) {
     ui.notifications!.warn(
