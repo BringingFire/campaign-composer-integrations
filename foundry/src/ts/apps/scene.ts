@@ -1,12 +1,21 @@
+import { AmbientLightDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/ambientLightData';
 import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
-import { CMap, DefaultApi, MapBackground } from 'campaign-composer-api';
+import { WallDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/wallData';
+import {
+  CMap,
+  DefaultApi,
+  MapBackground,
+  MapMetadata
+} from 'campaign-composer-api';
 import { defaultFolderName, moduleName } from '../constants';
 import { ensureDirectory, ensureFolder } from '../foundryHelpers';
 import { CCModuleData } from '../types';
+import { getLights, getWalls } from './uvtt';
 
 interface MapWithBackground {
   cMap: CMap;
   background: MapBackground;
+  metadata: MapMetadata;
 }
 
 export default class CampaignComposerSceneBrowser extends Application {
@@ -107,6 +116,7 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
   const map = await client.getMap({ mapId });
   console.log('fetched map');
   const background = await client.getMapBackground({ mapId });
+  const metadata = await client.getMapMetadata({ mapId });
   console.log('fetched background');
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
@@ -118,15 +128,16 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
   ) as StoredDocument<Scene> | undefined;
   if (scene) {
     console.log(`Map already imported as scene ${scene.id}`);
-    return updateSceneFromMap(scene, { cMap: map, background: background });
+    return updateSceneFromMap(scene, { cMap: map, background, metadata });
   }
 
-  return createSceneFromMap({ cMap: map, background: background });
+  return createSceneFromMap({ cMap: map, background, metadata });
 }
 
 async function createSceneFromMap({
   cMap,
   background,
+  metadata,
 }: MapWithBackground): Promise<void> {
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
@@ -141,18 +152,39 @@ async function createSceneFromMap({
   );
   await ensureDirectory({ type: 'data', path: 'campaign-composer' });
   await FilePicker.upload('data', 'campaign-composer', backgroundFile);
+  const padding = 0.25;
+
+  let lights: AmbientLightDataConstructorData[] = [];
+  let walls: WallDataConstructorData[] = [];
+  const uvtt = metadata.uvtt;
+  if (uvtt) {
+    const paddedOrigin: Point = {
+      x:
+        (Math.ceil(uvtt.resolution!.map_size!.x * padding) + 1) *
+        uvtt.resolution!.pixels_per_grid!,
+      y:
+        Math.ceil(uvtt.resolution!.map_size!.y * padding) *
+        uvtt.resolution!.pixels_per_grid!,
+    };
+    lights = getLights(uvtt, paddedOrigin);
+    walls = getWalls(uvtt, paddedOrigin);
+  }
 
   const sceneData: SceneDataConstructorData = {
+    folder: folder.id,
     name: cMap.title ?? 'Untitled Map',
     width: background.width,
     height: background.height,
+    padding: padding,
+    grid: cMap.grid?.pixelsPerGrid,
     img: `campaign-composer/${backgroundFile.name}`,
+    lights: lights,
+    walls: walls,
     flags: {
       [moduleName]: {
         mapId: cMap.id,
       },
     },
-    folder: folder.id,
   };
   const scene = await Scene.create(sceneData);
   if (!scene) {
