@@ -1,3 +1,4 @@
+import { NoteDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/noteData';
 import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
 import {
   CMap,
@@ -160,6 +161,7 @@ async function createSceneFromMap({
     padding: padding,
     grid: cMap.grid?.pixelsPerGrid,
     img: `campaign-composer/${backgroundFile.name}`,
+
     flags: {
       [moduleName]: {
         mapId: cMap.id,
@@ -167,22 +169,25 @@ async function createSceneFromMap({
     },
   };
 
+  const sceneRect = (new Scene(sceneData).dimensions as Canvas.Dimensions)
+    .sceneRect;
   const uvtt = metadata.uvtt;
   if (uvtt) {
-    const paddedOrigin: Point = {
-      x: 0,
-      y: 0,
-    };
-    const dimensions = new Scene(sceneData).dimensions;
-    if ('sceneRect' in dimensions) {
-      paddedOrigin.x = dimensions.sceneRect.x;
-      paddedOrigin.y = dimensions.sceneRect.y;
-    }
-    sceneData.lights = getLights(uvtt, paddedOrigin);
-    sceneData.walls = getWalls(uvtt, paddedOrigin).concat(
-      getDoors(uvtt, paddedOrigin),
+    sceneData.lights = getLights(uvtt, sceneRect);
+    sceneData.walls = getWalls(uvtt, sceneRect).concat(
+      getDoors(uvtt, sceneRect),
     );
   }
+
+  const notes: NoteDataConstructorData[] = (cMap.pins ?? []).map((pin) => {
+    return {
+      x: pin.x! + sceneRect.x,
+      y: pin.y! + sceneRect.y,
+      text: pin.label,
+    };
+  });
+  console.log(notes);
+  sceneData.notes = notes;
 
   const scene = await Scene.create(sceneData);
   if (!scene) {

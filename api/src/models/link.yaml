@@ -1,0 +1,41 @@
+link:
+  type: object
+  discriminator:
+    propertyName: "_t"
+    mapping:
+      doc: '#/docLink'
+      map: '#/mapLink'
+      ext: '#/extLink'
+    oneOf:
+      - $ref: '#/docLink'
+      - $ref: '#/mapLink'
+      - $ref: '#/extLink'
+    properties:
+      _t:
+        type: string
+
+docLink:
+  type: object
+  required:
+    - docId
+  properties:
+    docId:
+      type: string
+    startBlockId:
+      type: string
+
+mapLink:
+  type: object
+  required:
+    - mapId
+  properties:
+    mapId:
+      type: string
+
+extLink:
+  type: object
+  required:
+    - uri
+  properties:
+    uri:
+      type: string
