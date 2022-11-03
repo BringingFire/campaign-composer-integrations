@@ -1,7 +1,7 @@
 import { JournalEntryDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/journalEntryData';
 import {
   BlockAttributeHeaderLevel,
-  BlockAttributeLinkedDocument,
+  BlockAttributeLink,
   BlockAttributeListIndent,
   BlockAttributeListStyle,
   BlockAttributeListStyleStyleEnum,
@@ -88,10 +88,10 @@ export default class CampaignComposerJournalBrowser extends Application {
   }
 }
 
-async function importDocument(
+export async function importDocument(
   docId: string,
   client: DefaultApi,
-): Promise<void> {
+): Promise<StoredDocument<JournalEntry> | undefined> {
   const doc = await client.getDocument({ docId });
   const contents = getContentForDoc(doc);
   const journal = (game as Game).journal!;
@@ -100,9 +100,9 @@ async function importDocument(
   );
   if (entry) {
     await updateEntry(entry, doc, contents, true);
-    return;
+    return entry;
   }
-  await createNewEntry(doc, contents, true, {});
+  return await createNewEntry(doc, contents, true, {});
 }
 
 async function updateEntry(
@@ -127,7 +127,7 @@ async function createNewEntry(
   contents: DocContents,
   notify: boolean,
   options: Record<string, unknown>,
-) {
+): Promise<StoredDocument<JournalEntry> | undefined> {
   const folder = await ensureFolder({
     type: 'JournalEntry',
     name: defaultFolderName,
@@ -141,9 +141,6 @@ async function createNewEntry(
       [moduleName]: contents.flags,
     },
   };
-  console.log(entryData);
-
-  // Hooks.callAll(`WACreateJournalEntry`, entryData, doc, content);
 
   // Create the entry, notify, and return
   const entry = await JournalEntry.create(entryData, options);
@@ -199,11 +196,17 @@ function getContentForDoc(doc: CCDocument): DocContents {
           }
           case BlockType.Embed: {
             const embedAttr = b.attributes?.blockAttributes.find(
-              (attr) => attr._t === 'linkedDocument',
-            ) as BlockAttributeLinkedDocument;
-            return `${listState.closeList()}<b>Embedded content from ${
-              embedAttr.docId
-            }</b>`;
+              (attr) => attr._t === 'link',
+            ) as BlockAttributeLink;
+            const link = embedAttr.link;
+            if (link._t === 'doc') {
+              return `${listState.closeList()}<b>Embedded content from ${
+                link.docId
+              }</b>`;
+            }
+            return `${listState.closeList()}<b>Embedded content from unrecognized type ${
+              link._t
+            }`;
           }
           default: {
             console.error(`Unknown block type: ${b.type}`);

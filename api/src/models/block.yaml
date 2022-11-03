@@ -70,15 +70,13 @@ blockAttributeListStyle:
         - ordered
         - unOrdered
 
-blockAttributeLinkedDocument:
+blockAttributeLink:
   type: object
   required:
-    - docId
+    - link
   properties:
-    docId:
-      type: string
-    startBlockId:
-      type: string
+    link:
+      $ref: "./link.yaml#/link"
 
 blockAttribute:
     type: object
@@ -88,12 +86,12 @@ blockAttribute:
         headerLevel: '#/blockAttributeHeaderLevel'
         listIndent: '#/blockAttributeListIndent'
         listStyle: '#/blockAttributeListStyle'
-        linkedDocument: '#/blockAttributeLinkedDocument'
+        link: '#/blockAttributeLink'
     oneOf:
       - $ref: '#/blockAttributeHeaderLevel'
       - $ref: '#/blockAttributeListIndent'
       - $ref: '#/blockAttributeListStyle'
-      - $ref: '#/blockAttributeLinkedDocument'
+      - $ref: '#/blockAttributeLink'
     properties:
       _t:
         type: string

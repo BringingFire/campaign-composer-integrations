@@ -9,6 +9,7 @@ import {
 import { defaultFolderName, moduleName } from '../constants';
 import { ensureDirectory, ensureFolder } from '../foundryHelpers';
 import { CCModuleData } from '../types';
+import { importDocument } from './journal';
 import { getDoors, getLights, getWalls } from './uvtt';
 
 interface MapWithBackground {
@@ -130,14 +131,13 @@ async function importMap(mapId: string, client: DefaultApi): Promise<void> {
     return updateSceneFromMap(scene, { cMap: map, background, metadata });
   }
 
-  return createSceneFromMap({ cMap: map, background, metadata });
+  return createSceneFromMap({ cMap: map, background, metadata }, client);
 }
 
-async function createSceneFromMap({
-  cMap,
-  background,
-  metadata,
-}: MapWithBackground): Promise<void> {
+async function createSceneFromMap(
+  { cMap, background, metadata }: MapWithBackground,
+  client: DefaultApi,
+): Promise<void> {
   if (!background) {
     ui.notifications!.warn(`Cannot import a map without an image`);
     return;
@@ -179,14 +179,23 @@ async function createSceneFromMap({
     );
   }
 
-  const notes: NoteDataConstructorData[] = (cMap.pins ?? []).map((pin) => {
-    return {
-      x: pin.x! + sceneRect.x,
-      y: pin.y! + sceneRect.y,
-      text: pin.label,
-    };
-  });
-  console.log(notes);
+  const notes: NoteDataConstructorData[] = await Promise.all(
+    (cMap.pins ?? []).map(async (pin) => {
+      const link = pin.link;
+      let docId: string | undefined;
+      if (link?._t === 'doc') {
+        const doc = await importDocument(link.docId, client);
+        docId = doc?.id;
+      }
+      const result: NoteDataConstructorData = {
+        x: pin.x! + sceneRect.x,
+        y: pin.y! + sceneRect.y,
+        text: pin.label,
+        entryId: docId,
+      };
+      return result;
+    }),
+  );
   sceneData.notes = notes;
 
   const scene = await Scene.create(sceneData);

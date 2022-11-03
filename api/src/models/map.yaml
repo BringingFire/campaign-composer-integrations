@@ -51,6 +51,10 @@ mapMetadata:
 
 mapPin:
   type: object
+  required:
+    - id
+    - x
+    - y
   properties:
     id:
       type: string

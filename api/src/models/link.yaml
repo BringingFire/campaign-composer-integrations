@@ -6,13 +6,13 @@ link:
       doc: '#/docLink'
       map: '#/mapLink'
       ext: '#/extLink'
-    oneOf:
-      - $ref: '#/docLink'
-      - $ref: '#/mapLink'
-      - $ref: '#/extLink'
-    properties:
-      _t:
-        type: string
+  oneOf:
+    - $ref: '#/docLink'
+    - $ref: '#/mapLink'
+    - $ref: '#/extLink'
+  properties:
+    _t:
+      type: string
 
 docLink:
   type: object
