@@ -11,7 +11,7 @@
     "link-foundry": "ln -s $PWD/dist \"$HOME/Library/Application Support/FoundryVTT/Data/modules/campaign-composer-bridge\""
   },
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^9.269.0",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
     "@types/jquery": "^3.5.14",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",

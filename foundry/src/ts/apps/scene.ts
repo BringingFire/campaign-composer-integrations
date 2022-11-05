@@ -1,16 +1,7 @@
-import { NoteDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/noteData';
-import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
-import {
-  CMap,
-  DefaultApi,
-  MapBackground,
-  MapMetadata,
-} from 'campaign-composer-api';
-import { defaultFolderName, moduleName } from '../constants';
-import { ensureDirectory, ensureFolder } from '../foundryHelpers';
+import { CMap, MapBackground, MapMetadata } from 'campaign-composer-api';
+import { moduleName } from '../constants';
+import Importer from '../importer';
 import { CCModuleData } from '../types';
-import { importDocument } from './journal';
-import { getDoors, getLights, getWalls } from './uvtt';
 
 interface MapWithBackground {
   cMap: CMap;
@@ -89,7 +80,8 @@ export default class CampaignComposerSceneBrowser extends Application {
       case 'sync-map': {
         const mapId = (button.closest('.map') as HTMLElement).dataset.mapId;
         if (mapId) {
-          await importMap(mapId, module.client);
+          const importer = new Importer({ client: module.client });
+          importer.importMap(mapId);
         } else {
           console.log('Could not load mapId');
         }
@@ -109,148 +101,4 @@ export default class CampaignComposerSceneBrowser extends Application {
     const docId = el.dataset.documentId;
     console.log(`TODO: Show document with id ${docId}`);
   }
-}
-
-async function importMap(mapId: string, client: DefaultApi): Promise<void> {
-  console.log('importing map to scene');
-  const map = await client.getMap({ mapId });
-  console.log('fetched map');
-  const background = await client.getMapBackground({ mapId });
-  const metadata = await client.getMapMetadata({ mapId });
-  console.log('fetched background');
-  if (!background) {
-    ui.notifications!.warn(`Cannot import a map without an image`);
-    return;
-  }
-
-  const scene = Scenes.instance.find(
-    (s) => s.getFlag(moduleName, 'mapId') == map.id,
-  ) as StoredDocument<Scene> | undefined;
-  if (scene) {
-    console.log(`Map already imported as scene ${scene.id}`);
-    return updateSceneFromMap(scene, { cMap: map, background, metadata });
-  }
-
-  return createSceneFromMap({ cMap: map, background, metadata }, client);
-}
-
-async function createSceneFromMap(
-  { cMap, background, metadata }: MapWithBackground,
-  client: DefaultApi,
-): Promise<void> {
-  if (!background) {
-    ui.notifications!.warn(`Cannot import a map without an image`);
-    return;
-  }
-
-  const folder = await ensureFolder({ type: 'Scene', name: defaultFolderName });
-
-  const backgroundFile = new File(
-    [b64ToBlob(background.image)],
-    `${cMap.id}.${background.format}`,
-  );
-  await ensureDirectory({ type: 'data', path: 'campaign-composer' });
-  await FilePicker.upload('data', 'campaign-composer', backgroundFile);
-  const padding = 0.25;
-
-  const sceneData: SceneDataConstructorData = {
-    folder: folder.id,
-    name: cMap.title ?? 'Untitled Map',
-    width: background.width,
-    height: background.height,
-    padding: padding,
-    grid: cMap.grid?.pixelsPerGrid,
-    img: `campaign-composer/${backgroundFile.name}`,
-
-    flags: {
-      [moduleName]: {
-        mapId: cMap.id,
-      },
-    },
-  };
-
-  const sceneRect = (new Scene(sceneData).dimensions as Canvas.Dimensions)
-    .sceneRect;
-  const uvtt = metadata.uvtt;
-  if (uvtt) {
-    sceneData.lights = getLights(uvtt, sceneRect);
-    sceneData.walls = getWalls(uvtt, sceneRect).concat(
-      getDoors(uvtt, sceneRect),
-    );
-  }
-
-  const notes: NoteDataConstructorData[] = await Promise.all(
-    (cMap.pins ?? []).map(async (pin) => {
-      const link = pin.link;
-      let docId: string | undefined;
-      if (link?._t === 'doc') {
-        const doc = await importDocument(link.docId, client);
-        docId = doc?.id;
-      }
-      const result: NoteDataConstructorData = {
-        x: pin.x! + sceneRect.x,
-        y: pin.y! + sceneRect.y,
-        text: pin.label,
-        entryId: docId,
-      };
-      return result;
-    }),
-  );
-  sceneData.notes = notes;
-
-  const scene = await Scene.create(sceneData);
-  if (!scene) {
-    ui.notifications!.warn(
-      `Unknown error occurred importing ${sceneData.name}`,
-    );
-    return;
-  }
-  console.log('created scene');
-
-  const thumbnail = await scene?.createThumbnail();
-  console.log(thumbnail);
-  scene?.update({
-    thumb: thumbnail?.thumb,
-  });
-  console.log('created thumbnail');
-
-  ui.notifications!.info(`Imported scene ${scene.name}`);
-}
-
-async function updateSceneFromMap(
-  scene: StoredDocument<Scene>,
-  { cMap, background }: MapWithBackground,
-): Promise<void> {
-  const backgroundFile = new File(
-    [b64ToBlob(background.image)],
-    `${cMap.id}.${background.format}`,
-  );
-  await ensureDirectory({ type: 'data', path: 'campaign-composer' });
-  await FilePicker.upload('data', 'campaign-composer', backgroundFile);
-
-  const sceneData: SceneDataConstructorData = {
-    name: cMap.title ?? 'Untitled Map',
-    width: background.width,
-    height: background.height,
-    img: `campaign-composer/${backgroundFile.name}`,
-    flags: {
-      [moduleName]: {
-        mapId: cMap.id,
-      },
-    },
-  };
-  await scene.update(sceneData);
-  ui.notifications!.info(`Updated scene ${sceneData.name}`);
-}
-
-function b64ToBlob(bytes: string): Blob {
-  const byteString = atob(bytes);
-
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-
-  return new Blob([ab]);
 }
