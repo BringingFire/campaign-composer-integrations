@@ -13,7 +13,7 @@ import {
   Document as CCDocument,
   Link,
   MapBackground,
-  MapMetadata,
+  MapMetadata
 } from 'campaign-composer-api';
 import { getDoors, getLights, getWalls } from './apps/uvtt';
 import { defaultFolderName, moduleName } from './constants';
@@ -94,10 +94,10 @@ export default class Importer {
         },
         {},
       );
-      this.cache.docs[doc.id] = entry!;
     }
+    this.cache.docs[doc.id] = entry!;
     const contents = await this.getContentForDoc(doc);
-    await this.updateEntry(entry!, doc, contents, alert);
+    await this.updateEntry({ entry: entry!, doc, contents, alert });
     return entry;
   }
 
@@ -184,12 +184,17 @@ export default class Importer {
     }
   }
 
-  private async updateEntry(
-    entry: StoredDocument<JournalEntry>,
-    doc: CCDocument,
-    contents: DocContents,
-    alert: AlertType,
-  ): Promise<void> {
+  private async updateEntry({
+    entry,
+    doc,
+    contents,
+    alert,
+  }: {
+    entry: StoredDocument<JournalEntry>;
+    doc: CCDocument;
+    contents: DocContents;
+    alert: AlertType;
+  }): Promise<void> {
     const title = doc.title ?? 'Untitled Document';
     const entryData: Record<string, unknown> = {
       name: title,
@@ -234,60 +239,69 @@ export default class Importer {
   ): Promise<StoredDocument<Scene> | undefined> {
     console.log('importing map to scene');
     const map = await this.client.getMap({ mapId });
-    console.log('fetched map');
+    if (map.id in this.cache.maps) {
+      return this.cache.maps[map.id];
+    }
     const background = await this.client.getMapBackground({ mapId });
     const metadata = await this.client.getMapMetadata({ mapId });
-    console.log('fetched background');
     if (!background) {
       ui.notifications!.warn(`Cannot import a map without an image`);
       return;
     }
 
-    const scene = Scenes.instance.find(
+    const folder = await this.getMapsFolder();
+
+    let scene = Scenes.instance.find(
       (s) => s.getFlag(moduleName, 'mapId') == map.id,
     ) as StoredDocument<Scene> | undefined;
-    if (scene) {
-      console.log(`Map already imported as scene ${scene.id}`);
-      return this.updateSceneFromMap(scene, {
-        cMap: map,
-        background,
-        metadata,
+    let alert = AlertType.Update;
+    if (!scene) {
+      alert = AlertType.Create;
+      scene = await Scene.create({
+        name: map.title ?? 'Untitled Map',
+        folder,
       });
     }
+    this.cache.maps[map.id] = scene!;
 
-    const folder = await ensureFolder({
-      type: 'Scene',
-      name: defaultFolderName,
+    return this.updateSceneFromMap({
+      scene: scene!,
+      folder,
+      cMap: map,
+      background,
+      metadata,
+      alert,
     });
-    return this.createSceneFromMap({ cMap: map, background, metadata }, folder);
   }
 
-  private async createSceneFromMap(
-    { cMap, background, metadata }: MapWithBackground,
-    folder: Folder,
-  ): Promise<StoredDocument<Scene> | undefined> {
-    if (!background) {
-      ui.notifications!.warn(`Cannot import a map without an image`);
-      return;
-    }
-
+  private async updateSceneFromMap({
+    scene,
+    folder,
+    cMap,
+    background,
+    metadata,
+    alert,
+  }: {
+    scene: StoredDocument<Scene>;
+    folder: Folder;
+    cMap: CMap;
+    background: MapBackground;
+    metadata: MapMetadata;
+    alert: AlertType;
+  }): Promise<StoredDocument<Scene> | undefined> {
     const backgroundFile = new File(
       [b64ToBlob(background.image)],
       `${cMap.id}.${background.format}`,
     );
     await ensureDirectory({ type: 'data', path: 'campaign-composer' });
     await FilePicker.upload('data', 'campaign-composer', backgroundFile);
-    const padding = 0.25;
 
     const sceneData: SceneDataConstructorData = {
-      folder: folder.id,
       name: cMap.title ?? 'Untitled Map',
+      folder,
       width: background.width,
       height: background.height,
-      padding: padding,
-      grid: cMap.grid?.pixelsPerGrid,
       img: `campaign-composer/${backgroundFile.name}`,
-
       flags: {
         [moduleName]: {
           mapId: cMap.id,
@@ -324,50 +338,21 @@ export default class Importer {
     );
     sceneData.notes = notes;
 
-    const scene = await Scene.create(sceneData);
-    if (!scene) {
-      ui.notifications!.warn(
-        `Unknown error occurred importing ${sceneData.name}`,
-      );
-      return;
-    }
-    console.log('created scene');
-
-    const thumbnail = await scene?.createThumbnail();
-    console.log(thumbnail);
-    scene?.update({
-      thumb: thumbnail?.thumb,
-    });
-    console.log('created thumbnail');
-
-    ui.notifications!.info(`Imported scene ${scene.name}`);
-    return scene;
-  }
-
-  private async updateSceneFromMap(
-    scene: StoredDocument<Scene>,
-    { cMap, background }: MapWithBackground,
-  ): Promise<StoredDocument<Scene> | undefined> {
-    const backgroundFile = new File(
-      [b64ToBlob(background.image)],
-      `${cMap.id}.${background.format}`,
-    );
-    await ensureDirectory({ type: 'data', path: 'campaign-composer' });
-    await FilePicker.upload('data', 'campaign-composer', backgroundFile);
-
-    const sceneData: SceneDataConstructorData = {
-      name: cMap.title ?? 'Untitled Map',
-      width: background.width,
-      height: background.height,
-      img: `campaign-composer/${backgroundFile.name}`,
-      flags: {
-        [moduleName]: {
-          mapId: cMap.id,
-        },
-      },
-    };
     await scene.update(sceneData);
-    ui.notifications!.info(`Updated scene ${sceneData.name}`);
+    switch (alert) {
+      case AlertType.Create:
+        ui.notifications!.info(
+          `Imported Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
+        );
+        break;
+      case AlertType.Update:
+        ui.notifications!.info(
+          `Updated Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
+        );
+        break;
+      case AlertType.None:
+        break;
+    }
     return scene;
   }
 
@@ -436,7 +421,7 @@ export default class Importer {
     let folder = this.folders.docs;
     if (!folder) {
       folder = await ensureFolder({ type: 'Scene', name: defaultFolderName });
-      this.folders.docs = folder;
+      this.folders.maps = folder;
     }
     return folder;
   }
@@ -485,12 +470,6 @@ class ListState {
 
     return result;
   }
-}
-
-interface MapWithBackground {
-  cMap: CMap;
-  background: MapBackground;
-  metadata: MapMetadata;
 }
 
 function b64ToBlob(bytes: string): Blob {
