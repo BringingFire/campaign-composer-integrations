@@ -8,7 +8,7 @@ export async function ensureFolder({
   name,
 }: GetFolderArgs): Promise<Folder> {
   const folder = (game as Game).folders!.find(
-    (f: Folder) => f.data.type === type && f.name === name,
+    (f: Folder) => f.type === type && f.name === name,
   );
   if (folder) return folder;
 

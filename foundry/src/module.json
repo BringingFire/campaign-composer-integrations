@@ -16,8 +16,8 @@
   "system": [],
   "dependencies": [],
   "scripts": [],
-  "minimumCoreVersion": "9",
-  "compatibleCoreVersion": "9",
+  "minimumCoreVersion": "10",
+  "compatibleCoreVersion": "10",
   "styles": ["style.css"],
   "esmodules": ["scripts/module.js"]
 }
