@@ -1,6 +1,6 @@
 # Campaign Composer API
 
-This directory contains an OpenAPI[openapi] specification for Campaign Composer's local integration server. It can be used to generate client libraries for various languages.
+This directory contains an [OpenAPI][openapi] specification for Campaign Composer's local integration server. It can be used to generate client libraries for various languages.
 
 ## Requirements
 
