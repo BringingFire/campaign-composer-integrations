@@ -53,6 +53,10 @@ export default class Importer {
   private folders: FoldersCache;
   private toSync: Link[];
 
+  public get importedCount() {
+    return Object.keys(this.cache.maps).length + Object.keys(this.cache.docs).length;
+  }
+
   async importDocument(
     docId: string,
   ): Promise<StoredDocument<JournalEntry> | undefined> {
@@ -66,9 +70,7 @@ export default class Importer {
     );
     const folder = await this.getDocsFolder();
     const title = doc.title ?? 'Untitled Document';
-    let alert = AlertType.Update;
     if (!entry) {
-      alert = AlertType.Create;
       entry = await JournalEntry.create(
         {
           name: title,
@@ -97,7 +99,7 @@ export default class Importer {
     }
     this.cache.docs[doc.id] = entry!;
     const contents = await this.getContentForDoc(doc);
-    await this.updateEntry({ entry: entry!, doc, contents, alert });
+    await this.updateEntry({ entry: entry!, doc, contents });
     return entry;
   }
 
@@ -188,12 +190,10 @@ export default class Importer {
     entry,
     doc,
     contents,
-    alert,
   }: {
     entry: StoredDocument<JournalEntry>;
     doc: CCDocument;
     contents: DocContents;
-    alert: AlertType;
   }): Promise<void> {
     const title = doc.title ?? 'Untitled Document';
     const entryData: Record<string, unknown> = {
@@ -214,24 +214,24 @@ export default class Importer {
       ],
     };
     await entry.update(entryData, { recursive: false, diff: false });
-    switch (alert) {
-      case AlertType.Create:
-        ui.notifications!.info(
-          `Imported Campaign Composer document ${
-            doc.title ?? 'Untitled Document'
-          }`,
-        );
-        break;
-      case AlertType.Update:
-        ui.notifications!.info(
-          `Updated Campaign Composer document ${
-            doc.title ?? 'Untitled Document'
-          }`,
-        );
-        break;
-      case AlertType.None:
-        break;
-    }
+    // switch (alert) {
+    //   case AlertType.Create:
+    //     ui.notifications?.info(
+    //       `Imported Campaign Composer document ${
+    //         doc.title ?? 'Untitled Document'
+    //       }`,
+    //     );
+    //     break;
+    //   case AlertType.Update:
+    //     ui.notifications?.info(
+    //       `Updated Campaign Composer document ${
+    //         doc.title ?? 'Untitled Document'
+    //       }`,
+    //     );
+    //     break;
+    //   case AlertType.None:
+    //     break;
+    // }
   }
 
   public async importMap(
@@ -243,10 +243,15 @@ export default class Importer {
       return this.cache.maps[map.id];
     }
     const background = await this.client.getMapBackground({ mapId });
-    const metadata = await this.client.getMapMetadata({ mapId });
     if (!background) {
-      ui.notifications!.warn(`Cannot import a map without an image`);
+      // ui.notifications?.warn(`Cannot import a map without an image`);
       return;
+    }
+    let metadata: MapMetadata | undefined = undefined;
+    try {
+      metadata = await this.client.getMapMetadata({ mapId });
+    } catch (e) {
+      // pass
     }
 
     const folder = await this.getMapsFolder();
@@ -280,14 +285,12 @@ export default class Importer {
     cMap,
     background,
     metadata,
-    alert,
   }: {
     scene: StoredDocument<Scene>;
     folder: Folder;
     cMap: CMap;
     background: MapBackground;
-    metadata: MapMetadata;
-    alert: AlertType;
+    metadata?: MapMetadata;
   }): Promise<StoredDocument<Scene> | undefined> {
     const backgroundFile = new File(
       [b64ToBlob(background.image)],
@@ -311,7 +314,7 @@ export default class Importer {
 
     const sceneRect = (new Scene(sceneData).dimensions as Canvas.Dimensions)
       .sceneRect;
-    const uvtt = metadata.uvtt;
+    const uvtt = metadata?.uvtt;
     if (uvtt) {
       sceneData.lights = getLights(uvtt, sceneRect);
       sceneData.walls = getWalls(uvtt, sceneRect).concat(
@@ -339,20 +342,20 @@ export default class Importer {
     sceneData.notes = notes;
 
     await scene.update(sceneData);
-    switch (alert) {
-      case AlertType.Create:
-        ui.notifications!.info(
-          `Imported Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
-        );
-        break;
-      case AlertType.Update:
-        ui.notifications!.info(
-          `Updated Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
-        );
-        break;
-      case AlertType.None:
-        break;
-    }
+    // switch (alert) {
+    //   case AlertType.Create:
+    //     ui.notifications?.info(
+    //       `Imported Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
+    //     );
+    //     break;
+    //   case AlertType.Update:
+    //     ui.notifications?.info(
+    //       `Updated Campaign Composer map ${cMap.title ?? 'Untitled Document'}`,
+    //     );
+    //     break;
+    //   case AlertType.None:
+    //     break;
+    // }
     return scene;
   }
 
