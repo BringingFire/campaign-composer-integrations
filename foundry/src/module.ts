@@ -1,7 +1,5 @@
 import './styles/style.scss';
 import CampaignComposerBrowser from './ts/apps/composer';
-import CampaignComposerJournalBrowser from './ts/apps/journal';
-import CampaignComposerSceneBrowser from './ts/apps/scene';
 import { moduleName } from './ts/constants';
 import BridgeSettings from './ts/settings';
 import { CCModuleData } from './ts/types';

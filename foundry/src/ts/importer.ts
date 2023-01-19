@@ -19,12 +19,6 @@ import { getDoors, getLights, getWalls } from './apps/uvtt';
 import { defaultFolderName, moduleName } from './constants';
 import { ensureDirectory, ensureFolder } from './foundryHelpers';
 
-const enum AlertType {
-  None,
-  Create,
-  Update,
-}
-
 interface DocContents {
   html: string;
   flags: Record<string, unknown>;
@@ -259,9 +253,7 @@ export default class Importer {
     let scene = Scenes.instance.find(
       (s) => s.getFlag(moduleName, 'mapId') == map.id,
     ) as StoredDocument<Scene> | undefined;
-    let alert = AlertType.Update;
     if (!scene) {
-      alert = AlertType.Create;
       scene = await Scene.create({
         name: map.title ?? 'Untitled Map',
         folder,
@@ -275,7 +267,6 @@ export default class Importer {
       cMap: map,
       background,
       metadata,
-      alert,
     });
   }
 
