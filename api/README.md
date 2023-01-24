@@ -23,11 +23,10 @@ You can find the output in the `dist` directory.
 To build for a language we do not have a build script for, run the following, replacing values indicated in angle brackets as appropriate:
 
 ```
-openapi-generator-cli generate \
+yarn openapi-generator-cli generate \
   -i src/api.yaml\
   -g <GENERATOR NAME> \
   -o dist/<LANGUAGE NAME>
-cd dist/javascript && yarn && yarn build
 ```
 
 You can get a list of available generators by running:
