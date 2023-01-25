@@ -31,6 +31,7 @@ Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
 
   const button = $(`<button class="cc-sidebar-button" type="button">
     <img class="cc-sidebar-button-icon" src="modules/${moduleName}/assets/icons/bf-bw.png" title="Campaign Composer"/>
+    <p>Campaign Composer Import</p>
   </button>`);
   button.on('click', () => {
     module.composerBrowser.render(true);

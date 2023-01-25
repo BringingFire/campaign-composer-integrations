@@ -1,0 +1,59 @@
+{{#*inline "mapPartial"}}
+<article class="composer-item-row map flexrow" data-map-id="{{ this.cMap.id }}">
+    <input class="campaign-composer-control" type="checkbox" value="map:{{this.cMap.id}}" data-checkbox-role="child" data-checkbox-category="map"></input>
+    <img class="map-thumbnail" src="data:image/jpeg;base64,{{this.background.image}}" />
+    <h3 class="map-title">{{#if this.cMap.title}}{{ this.cMap.title }}{{else}}Untitled Map{{/if}}</h3>
+    <h4 class="composer-item-sync-status"/>
+</article>
+{{/inline}}
+
+{{#*inline "documentPartial"}}
+<article class="composer-item-row document flexrow" data-document-id="{{ this.id }}" data-entry-id="{{ this.entry.id }}">
+    <input class="campaign-composer-control" type="checkbox" value="doc:{{this.id}}" data-checkbox-role="child" data-checkbox-category="doc"></input>
+    <h3 class="document-title">{{#if this.title}}{{ this.title }}{{else}}Untitled Document{{/if}}</h3>
+    <h4 class="composer-item-sync-status"/>
+</article>
+{{/inline}}
+
+{{#if loading }}
+<section class="campaign-composer-loading-initial">
+  <span class="book-loader"></span>
+  <span>{{loading}}...</span>
+</section>
+{{else if error}}
+<section class="campaign-composer-loading-initial">
+  <span>Error: {{error}}</span>
+</section>
+{{else}}
+<div class="campaign-composer-modal">
+  <div class="campaign-composer-lists" style="flex: 1;">
+    <section>
+      <header class="composer-checkbox-header">
+        <input class="campaign-composer-control" type="checkbox" data-checkbox-role="parent" data-checkbox-category="map"></input>
+        <h2>Maps</h2>
+      </header>
+      <div>
+        {{#each maps}}
+        {{> "mapPartial"}}
+        {{/each}}
+      </div>
+    </section>
+
+    <section style="margin-right: 10px;">
+      <header class="composer-checkbox-header">
+        <input class="campaign-composer-control" type="checkbox" data-checkbox-role="parent" data-checkbox-category="doc"></input>
+        <h2>Documents</h2>
+      </header>
+      <div>
+        {{#each documents}}
+        {{> "documentPartial"}}
+        {{/each}}
+      </div>
+    </section>
+  </div>
+  <div class="composer-modal-controls">
+    <button class="campaign-composer-control" data-action="cancel">Cancel</button>
+    <button class="campaign-composer-control" data-action="import">Import</button>
+  </div>
+</div>
+{{/if}}
