@@ -57,16 +57,16 @@ export default class CampaignComposerBrowser extends Application {
       console.log('Pre-selecting only unimported CC content');
       const allDocsImported = this.docs.every((d) => d.synced);
       const parentDocCheckbox = this.element.find(`input:checkbox[data-checkbox-category="doc"][data-checkbox-role="parent"]`).get(0) as HTMLInputElement;
-      if (allDocsImported) {
+      if (!anyDocsImported) {
         parentDocCheckbox.checked = true;
-      } else if (anyDocsImported) {
+      } else if (!allDocsImported) {
         parentDocCheckbox.indeterminate = true;
       }
       const allMapsImported = this.maps.every((d) => d.synced);
       const parentMapCheckbox = this.element.find(`input:checkbox[data-checkbox-category="map"][data-checkbox-role="parent"]`).get(0) as HTMLInputElement;
-      if (allMapsImported) {
+      if (!anyMapsImported) {
         parentMapCheckbox.checked = true;
-      } else if (anyMapsImported) {
+      } else if (!allMapsImported) {
         parentMapCheckbox.indeterminate = true;
       }
       this.element.find('input:checkbox.campaign-composer-control').each((_, e) => {
