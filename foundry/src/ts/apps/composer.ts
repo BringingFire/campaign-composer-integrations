@@ -35,16 +35,6 @@ export default class CampaignComposerBrowser extends Application {
     return 'Import from Campaign Composer'
   }
 
-  override render(...args: any[]): unknown {
-    const res = super.render(...args);
-    if (this._priorState == Application.RENDER_STATES.NONE && this._state == Application.RENDER_STATES.RENDERING) {
-      setTimeout(() => {
-        this.fetchLists();
-      }, 1000);
-    }
-    return res;
-  }
-
   _setInitialChecks(): void {
     const anyDocsImported = this.docs.some((d) => d.synced);
     const anyMapsImported = this.maps.some((d) => d.synced);
@@ -227,6 +217,7 @@ export default class CampaignComposerBrowser extends Application {
                 this.render();
                 await this.doImport(toImportSorted);
                 this.close();
+                this.fetchLists();
                 this.loading = undefined;
               }
             }
@@ -241,6 +232,7 @@ export default class CampaignComposerBrowser extends Application {
           this.render();
           await this.doImport(toImportSorted);
           this.close();
+          this.fetchLists();
           this.loading = undefined;
         }
         break;
@@ -274,7 +266,8 @@ export default class CampaignComposerBrowser extends Application {
     }
   }
 
-  private async fetchLists() {
+  async fetchLists() {
+    this.loading = 'Contacting Campaign Composer';
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
     console.log('Fetching composer content lists');
     const syncedMapIds = Scenes.instance.map(

@@ -34,6 +34,7 @@ Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
     <p>Campaign Composer Import</p>
   </button>`);
   button.on('click', () => {
+    module.composerBrowser.fetchLists();
     module.composerBrowser.render(true);
   });
   html.find('.directory-header .action-buttons').append(button);
