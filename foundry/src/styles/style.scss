@@ -1,9 +1,11 @@
 .cc-sidebar-button {
+  display: flex;
   flex: 0 0 32px;
 
   &-icon {
     height: 24px;
     border: none;
+    margin-right: 3px;
   }
 }
 
@@ -14,38 +16,32 @@
   border-bottom: 1px solid var(--color-underline-header);
 
   * {
-      border-bottom: none;
-      margin: 0.5rem 0 0.5rem 0;
-    }
+    border-bottom: none;
+    margin: 0.5rem 0 0.5rem 0;
   }
-// .document {
-//   .document-title {
-//     cursor: pointer;
 
-//     &:hover {
-  //       text-shadow: 0 0 4px red;
-  //     }
-  //   }
+  i.fas {
+    flex: unset;
+    margin-right: 1em;
+  }
 
-//   .controls {
-//     flex: none;
+  .composer-item-sync-status {
+    flex: unset;
+    padding-right: 1em;
+  }
+}
 
-//     button.campaign-composer-control {
-//       width: 32px;
-//       height: 30px;
-//     }
-//   }
-// }
 .map {
   margin-bottom: 8px;
+
   .map-thumbnail {
     flex: none;
     border: none;
     height: 64px;
-      width: 64px;
-      margin-right: 20px;
-      object-fit: cover;
-      object-position: center;
+    width: 64px;
+    margin-right: 20px;
+    object-fit: cover;
+    object-position: center;
   }
 
   .controls {
@@ -57,6 +53,7 @@
     }
   }
 }
+
 .campaign-composer-loading-initial {
   display: flex;
   flex-direction: column;
