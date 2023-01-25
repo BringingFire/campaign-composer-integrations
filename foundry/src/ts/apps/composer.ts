@@ -188,8 +188,6 @@ export default class CampaignComposerBrowser extends Application {
           .map((e) => (e as HTMLInputElement).value)
           .filter((v) => v.startsWith('doc:') || v.startsWith('map:'));
         if (toImport.length < 1) return;
-        this.loading = `Importing ${toImport.length} items`;
-        this.render();
         const toImportSorted = toImport.map((s) => s.split(':')).reduce((prev, curr) => {
           switch (curr[0]) {
             case 'doc':
@@ -202,9 +200,49 @@ export default class CampaignComposerBrowser extends Application {
           return prev;
         }, {docs: ([] as string[]), maps: ([] as string[])});
         console.log(toImportSorted);
-        await this.doImport(toImportSorted);
-        this.close();
-        this.loading = undefined;
+        const docsToOverwrite = toImportSorted.docs.map((d) => this.docs.find((e) => e.id === d)).filter((d) => d?.synced ?? false).map((d) => d!.title);
+        const mapsToOverwrite = toImportSorted.maps.map((m) => this.docs.find((e) => e.id === m)).filter((m) => m?.synced ?? false).map((m) => m!.title);
+        const toOverwrite = [...docsToOverwrite, ...mapsToOverwrite];
+        if (toOverwrite.length > 0) {
+          const toOverwriteSelected = toOverwrite.slice(0, 3);
+          if (toOverwrite.length > 3) {
+            toOverwriteSelected.push(`and ${toOverwrite.length - 3} other items...`);
+          }
+          let msg = '<p>This will replace the following files in Foundry:</p><br/>'
+            + toOverwriteSelected.map((s) => `<p><strong>${s}</strong></p>`).join('\n')
+            + "<br/><p>Do you want to continue? This acton can't be undone.</p>";
+          let d: Dialog = new Dialog({
+            title: "Overwrite existing files?",
+            content: msg,
+            buttons: {
+            one: {
+              label: "Cancel",
+              callback: () => d.close(),
+            },
+            two: {
+              label: "Overwrite",
+              callback: async () => {
+                d.close();
+                this.loading = `Importing ${toImport.length} items`;
+                this.render();
+                await this.doImport(toImportSorted);
+                this.close();
+                this.loading = undefined;
+              }
+            }
+            },
+            default: "two",
+            render: html => console.log("Register interactivity in the rendered dialog"),
+            close: html => console.log("This always is logged no matter which option is chosen")
+          });
+          d.render(true);
+        } else {
+          this.loading = `Importing ${toImport.length} items`;
+          this.render();
+          await this.doImport(toImportSorted);
+          this.close();
+          this.loading = undefined;
+        }
         break;
       }
       default:
