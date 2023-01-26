@@ -122,8 +122,12 @@ export default class Importer {
 
   private async processBlock(b: Block, listState: ListState): Promise<string> {
     switch (b.type) {
-      case BlockType.Paragraph:
+      case BlockType.Paragraph: {
+        if (b.attributes?.blockAttributes.some((attr) => attr._t === 'blockQuote')) {
+          return `${listState.closeList()}<blockquote><p>${b.contents}</p></blockquote>`;
+        }
         return `${listState.closeList()}<p>${b.contents}</p>`;
+      }
       case BlockType.Heading: {
         const headingLevel =
           (
@@ -152,6 +156,8 @@ export default class Importer {
           b.contents
         }</li>`;
       }
+      case BlockType.Divider:
+        return `${listState.closeList()}<hr>`;
       case BlockType.Embed: {
         const embedAttr = b.attributes?.blockAttributes.find(
           (attr) => attr._t === 'link',
