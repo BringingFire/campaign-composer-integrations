@@ -5,6 +5,7 @@ blockType:
     - paragraph
     - listItem
     - embed
+    - divider
 
 block:
   type: object
@@ -78,6 +79,13 @@ blockAttributeLink:
     link:
       $ref: "./link.yaml#/link"
 
+blockAttributeBlockQuote:
+  type: object
+  properties:
+    _:
+      type: {}
+  nullable: true
+
 blockAttribute:
     type: object
     discriminator:
@@ -87,11 +95,13 @@ blockAttribute:
         listIndent: '#/blockAttributeListIndent'
         listStyle: '#/blockAttributeListStyle'
         link: '#/blockAttributeLink'
+        blockQuote: '#/blockAttributeBlockQuote'
     oneOf:
       - $ref: '#/blockAttributeHeaderLevel'
       - $ref: '#/blockAttributeListIndent'
       - $ref: '#/blockAttributeListStyle'
       - $ref: '#/blockAttributeLink'
+      - $ref: '#/blockAttributeBlockQuote'
     properties:
       _t:
         type: string
