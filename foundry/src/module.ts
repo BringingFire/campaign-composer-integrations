@@ -20,7 +20,7 @@ Hooks.once('init', () => {
   BridgeSettings.updateModuleClient();
 });
 
-Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
+function insertImportButton(_: Application, html: JQuery) {
   if (!(game instanceof Game)) {
     throw 'game singleton not initialized';
   }
@@ -38,4 +38,7 @@ Hooks.on('renderJournalDirectory', (_: Application, html: JQuery) => {
     module.composerBrowser.render(true);
   });
   html.find('.directory-header .action-buttons').append(button);
-});
+}
+
+Hooks.on('renderJournalDirectory', insertImportButton);
+Hooks.on('renderSceneDirectory', insertImportButton);
