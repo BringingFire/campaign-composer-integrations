@@ -418,7 +418,7 @@ export default class Importer {
   }
 
   async getMapsFolder(): Promise<Folder> {
-    let folder = this.folders.docs;
+    let folder = this.folders.maps;
     if (!folder) {
       folder = await ensureFolder({ type: 'Scene', name: defaultFolderName });
       this.folders.maps = folder;
