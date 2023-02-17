@@ -31,7 +31,15 @@ export default class BridgeSettings {
   }
 
   public static get apiUrl(): string {
-    return (game as Game).settings.get(moduleName, apiUrlKey) as string;
+    let url = (game as Game).settings.get(moduleName, apiUrlKey) as string;
+    if (!new RegExp("^.+://").test(url)) {
+      let protocol = 'https://';
+      if (url.startsWith('localhost') || url.startsWith('127.0.0.1')) {
+        protocol = 'http://';
+      }
+      url = `${protocol}${url}`;
+    }
+    return url;
   }
 
   public static get apiKey(): string {
