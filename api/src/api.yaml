@@ -14,10 +14,28 @@ security:
   - apiKeyAuth: []
 
 paths:
-  /documents:
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/campaign.yaml#/campaign'
+  /campaigns/{campaignId}/documents:
     get:
       summary: Get a list of metadata for all documents
       operationId: listDocuments
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       responses:
         '200':
           description: OK
@@ -35,10 +53,15 @@ paths:
                       type: entity
                       created: '2022-06-14T04:35:29Z'
                       updated: '2022-06-14T04:35:29Z'
-  /documents/{docId}:
+  /campaigns/{campaignId}/documents/{docId}:
     get:
       operationId: getDocument
       parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       - name: docId
         in: path
         required: true
@@ -65,10 +88,16 @@ paths:
                       - id: A90BA1E5-4520-40BE-A5B5-8FE019486EF8
                         type: paragraph
                         contents: 'Section body'
-  /maps:
+  /campaigns/{campaignId}/maps:
     get:
       summary: Get a list of all maps
       operationId: listMaps
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       responses:
         '200':
           description: OK
@@ -85,10 +114,15 @@ paths:
                     title: Map title
                     created: '2022-06-14T04:35:29Z'
                     updated: '2022-06-14T04:35:29Z'
-  /maps/{mapId}:
+  /campaigns/{campaignId}/maps/{mapId}:
     get:
       operationId: getMap
       parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       - name: mapId
         in: path
         required: true
@@ -101,10 +135,15 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/cMap'
-  /maps/{mapId}/background:
+  /campaigns/{campaignId}/maps/{mapId}/background:
     get:
       operationId: getMapBackground
       parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       - name: mapId
         in: path
         required: true
@@ -117,10 +156,15 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/mapBackground'
-  /maps/{mapId}/metadata:
+  /campaigns/{campaignId}/maps/{mapId}/metadata:
     get:
       operationId: getMapMetadata
       parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: integer
       - name: mapId
         in: path
         required: true
