@@ -35,14 +35,16 @@ interface FoldersCache {
 }
 
 export default class Importer {
-  constructor({ client }: { client: DefaultApi }) {
+  constructor({ client, campaignId }: { client: DefaultApi, campaignId: number }) {
     this.client = client;
+    this.campaignId = campaignId;
     this.cache = { docs: {}, maps: {} };
     this.toSync = [];
     this.folders = {};
   }
 
   private client: DefaultApi;
+  private campaignId: number;
   private cache: ImportCache;
   private folders: FoldersCache;
   private toSync: Link[];
@@ -54,7 +56,7 @@ export default class Importer {
   async importDocument(
     docId: string,
   ): Promise<StoredDocument<JournalEntry> | undefined> {
-    const doc = await this.client.getDocument({ docId });
+    const doc = await this.client.getDocument({ docId, campaignId: this.campaignId });
     if (doc.id in this.cache.docs) {
       return this.cache.docs[doc.id];
     }
@@ -238,18 +240,18 @@ export default class Importer {
     mapId: string,
   ): Promise<StoredDocument<Scene> | undefined> {
     console.log('importing map to scene');
-    const map = await this.client.getMap({ mapId });
+    const map = await this.client.getMap({ mapId, campaignId: this.campaignId });
     if (map.id in this.cache.maps) {
       return this.cache.maps[map.id];
     }
-    const background = await this.client.getMapBackground({ mapId });
+    const background = await this.client.getMapBackground({ mapId, campaignId: this.campaignId });
     if (!background) {
       // ui.notifications?.warn(`Cannot import a map without an image`);
       return;
     }
     let metadata: MapMetadata | undefined = undefined;
     try {
-      metadata = await this.client.getMapMetadata({ mapId });
+      metadata = await this.client.getMapMetadata({ mapId, campaignId: this.campaignId });
     } catch (e) {
       // pass
     }

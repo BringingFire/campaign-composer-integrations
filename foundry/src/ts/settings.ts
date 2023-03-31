@@ -4,6 +4,7 @@ import { CCModuleData } from './types';
 
 const apiUrlKey = 'apiUrl';
 const apiKeyKey = 'apiKey';
+const campaignId = 'campaignId'
 
 export default class BridgeSettings {
   static registerSettings(): void {
@@ -28,6 +29,15 @@ export default class BridgeSettings {
       default: 'PASSWORD123', // The default value for the setting
       onChange: BridgeSettings.updateModuleClient,
     });
+
+    game.settings.register(moduleName, campaignId, {
+      name: 'Campaign ID',
+      scope: 'client',
+      config: true,
+      type: Number,
+      default: 1,
+      onChange: BridgeSettings.updateModuleClient,
+    });
   }
 
   public static get apiUrl(): string {
@@ -46,6 +56,10 @@ export default class BridgeSettings {
     return (game as Game).settings.get(moduleName, apiKeyKey) as string;
   }
 
+  public static get campaignId(): number {
+    return (game as Game).settings.get(moduleName, campaignId) as number;
+  }
+
   public static updateModuleClient(): void {
     const module = (game as Game).modules.get(moduleName) as
       | CCModuleData
@@ -60,5 +74,6 @@ export default class BridgeSettings {
         apiKey: BridgeSettings.apiKey,
       }),
     );
+    module.activeCampaign = BridgeSettings.campaignId;
   }
 }

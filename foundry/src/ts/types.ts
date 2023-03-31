@@ -5,4 +5,5 @@ import CampaignComposerBrowser from './apps/composer';
 export interface CCModuleData extends Game.ModuleData<ModuleData> {
   composerBrowser: CampaignComposerBrowser;
   client: DefaultApi;
+  activeCampaign: number;
 }

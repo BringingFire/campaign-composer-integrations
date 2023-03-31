@@ -244,7 +244,7 @@ export default class CampaignComposerBrowser extends Application {
 
   private async doImport({ docs, maps }: {docs: string[], maps: string[]}): Promise<void> {
     const module = (game as Game).modules.get(moduleName) as CCModuleData;
-    const importer = new Importer({ client: module.client });
+    const importer = new Importer({ client: module.client, campaignId: module.activeCampaign });
     let titleForAlert: string | undefined | null;
     for (const docId of docs) {
       const doc = await importer.importDocument(docId);
@@ -278,14 +278,15 @@ export default class CampaignComposerBrowser extends Application {
       (e) => e.getFlag(moduleName, 'documentId') as string | undefined | null,
     ).filter((i) => !!i).map((i) => i as string);
     try {
-      this.docs = (await module.client.listDocuments()).map((d) => Object.assign({ synced: syncedDocIds.includes(d.id) }, d));
+      this.docs = (await module.client.listDocuments({campaignId: module.activeCampaign})).map((d) => Object.assign({ synced: syncedDocIds.includes(d.id) }, d));
       console.log(`Fetched ${this.docs.length} documents`);
-      const maps = await module.client.listMaps();
+      const maps = await module.client.listMaps({campaignId: module.activeCampaign});
       this.maps = (
         await Promise.all(
           maps.map(async (cMap) => {
             try {
               const background = await module.client.getMapBackground({
+                campaignId: module.activeCampaign,
                 mapId: cMap.id,
               });
               return {
