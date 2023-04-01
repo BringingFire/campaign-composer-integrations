@@ -6,10 +6,17 @@ info:
 security:
   - apiKeyAuth: []
 
+tags:
+  - name: campaigns
+  - name: documents
+  - name: maps
+
 paths:
   /campaigns:
     get:
       operationId: listCampaigns
+      tags:
+        - campaigns
       responses:
         '200':
           description: OK
@@ -23,6 +30,8 @@ paths:
     get:
       summary: Get a list of metadata for all documents
       operationId: listDocuments
+      tags:
+        - documents
       parameters:
         - $ref: '#/components/parameters/campaignId'
       responses:
@@ -37,6 +46,8 @@ paths:
   /campaigns/{campaignId}/documents/{docId}:
     get:
       operationId: getDocument
+      tags:
+        - documents
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/docId'
@@ -51,6 +62,8 @@ paths:
     get:
       summary: Get a list of all maps
       operationId: listMaps
+      tags:
+        - maps
       parameters:
         - $ref: '#/components/parameters/campaignId'
       responses:
@@ -65,6 +78,8 @@ paths:
   /campaigns/{campaignId}/maps/{mapId}:
     get:
       operationId: getMap
+      tags:
+        - maps
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/mapId'
@@ -78,6 +93,8 @@ paths:
   /campaigns/{campaignId}/maps/{mapId}/background:
     get:
       operationId: getMapBackground
+      tags:
+        - maps
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/mapId'
@@ -91,6 +108,8 @@ paths:
   /campaigns/{campaignId}/maps/{mapId}/metadata:
     get:
       operationId: getMapMetadata
+      tags:
+        - maps
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/mapId'
