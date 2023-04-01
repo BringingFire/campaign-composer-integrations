@@ -3,33 +3,6 @@ info:
   title: Campaign Composer REST API
   version: "1.1.0"
 
-components:
-  securitySchemes:
-    apiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
-  parameters:
-    campaignId:
-      name: campaignId
-      in: path
-      required: true
-      schema:
-        type: integer
-    docId:
-      name: docId
-      in: path
-      required: true
-      schema:
-        type: string
-    mapId:
-      name: mapId
-      in: path
-      required: true
-      schema:
-        type: string
-
-
 security:
   - apiKeyAuth: []
 
@@ -61,14 +34,6 @@ paths:
                 type: array
                 items:
                   $ref: './models/document.yaml#/documentMeta'
-              examples:
-                default:
-                  value:
-                    - id: 590B91E5-4520-40CE-A5B5-8FE019486EF8
-                      title: Document title
-                      type: entity
-                      created: '2022-06-14T04:35:29Z'
-                      updated: '2022-06-14T04:35:29Z'
   /campaigns/{campaignId}/documents/{docId}:
     get:
       operationId: getDocument
@@ -82,20 +47,6 @@ paths:
             application/json:
               schema:
                 $ref: './models/document.yaml#/document'
-              examples:
-                default:
-                  value:
-                    id: 590B91E5-4520-40CE-A5B5-8FE019486EF8
-                    title: Document title
-                    created: '2022-06-14T04:35:29Z'
-                    updated: '2022-06-14T04:35:29Z'
-                    contents:
-                      - id: F90BA1E5-4520-40BE-A5B5-8FE019486EF8
-                        type: heading
-                        contents: 'Section heading'
-                      - id: A90BA1E5-4520-40BE-A5B5-8FE019486EF8
-                        type: paragraph
-                        contents: 'Section body'
   /campaigns/{campaignId}/maps:
     get:
       summary: Get a list of all maps
@@ -111,13 +62,6 @@ paths:
                 type: array
                 items:
                   $ref: './models/map.yaml#/cMap'
-              examples:
-                default:
-                  value:
-                    id: 590B91E5-4520-40CE-A5B5-8FA219486EF8
-                    title: Map title
-                    created: '2022-06-14T04:35:29Z'
-                    updated: '2022-06-14T04:35:29Z'
   /campaigns/{campaignId}/maps/{mapId}:
     get:
       operationId: getMap
@@ -157,3 +101,29 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/mapMetadata'
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  parameters:
+    campaignId:
+      name: campaignId
+      in: path
+      required: true
+      schema:
+        type: integer
+    docId:
+      name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+    mapId:
+      name: mapId
+      in: path
+      required: true
+      schema:
+        type: string
