@@ -9,6 +9,26 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+  parameters:
+    campaignId:
+      name: campaignId
+      in: path
+      required: true
+      schema:
+        type: integer
+    docId:
+      name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+    mapId:
+      name: mapId
+      in: path
+      required: true
+      schema:
+        type: string
+
 
 security:
   - apiKeyAuth: []
@@ -31,11 +51,7 @@ paths:
       summary: Get a list of metadata for all documents
       operationId: listDocuments
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
+        - $ref: '#/components/parameters/campaignId'
       responses:
         '200':
           description: OK
@@ -57,16 +73,8 @@ paths:
     get:
       operationId: getDocument
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
-      - name: docId
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/docId'
       responses:
         '200':
           description: OK
@@ -93,11 +101,7 @@ paths:
       summary: Get a list of all maps
       operationId: listMaps
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
+        - $ref: '#/components/parameters/campaignId'
       responses:
         '200':
           description: OK
@@ -118,16 +122,8 @@ paths:
     get:
       operationId: getMap
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
-      - name: mapId
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/mapId'
       responses:
         '200':
           description: OK
@@ -139,16 +135,8 @@ paths:
     get:
       operationId: getMapBackground
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
-      - name: mapId
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/mapId'
       responses:
         '200':
           description: OK
@@ -160,16 +148,8 @@ paths:
     get:
       operationId: getMapMetadata
       parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: integer
-      - name: mapId
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/mapId'
       responses:
         '200':
           description: OK
