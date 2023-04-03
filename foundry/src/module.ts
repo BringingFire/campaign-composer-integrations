@@ -1,8 +1,9 @@
 import './styles/style.scss';
 import CampaignComposerBrowser from './ts/apps/composer';
+import SvelteTest from './ts/apps/composer';
 import { moduleName } from './ts/constants';
 import BridgeSettings from './ts/settings';
-import { CCModuleData } from './ts/types';
+import type { CCModuleData } from './ts/types';
 
 let module: CCModuleData;
 
@@ -17,6 +18,7 @@ Hooks.once('init', () => {
 
   module = game.modules.get(moduleName) as CCModuleData;
   module.composerBrowser = new CampaignComposerBrowser();
+  module.svelteTest = new SvelteTest();
   BridgeSettings.updateModuleClient();
 });
 
@@ -34,8 +36,8 @@ function insertImportButton(_: Application, html: JQuery) {
     Campaign Composer Import
   </button>`);
   button.on('click', () => {
-    module.composerBrowser.fetchLists();
-    module.composerBrowser.render(true);
+    // module.composerBrowser.fetchLists();
+    module.svelteTest.render(true);
   });
   html.find('.directory-header .action-buttons').append(button);
 }

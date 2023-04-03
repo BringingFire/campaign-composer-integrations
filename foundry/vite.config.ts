@@ -1,37 +1,31 @@
 import * as fsPromises from 'fs/promises';
-import copy from 'rollup-plugin-copy';
-import scss from 'rollup-plugin-scss';
-import { defineConfig, Plugin } from 'vite';
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
+import type { Plugin } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 
 export default defineConfig({
   build: {
     sourcemap: true,
-    rollupOptions: {
-      input: 'src/module.ts',
-      output: {
-        dir: undefined,
-        file: 'dist/scripts/module.js',
-        format: 'es',
-      },
+    lib: {
+      entry: resolve(__dirname, 'src/module.ts'),
+      name: 'Campaign Composer Bridge',
+      fileName: 'scripts/module',
     },
+    target: 'esnext',
   },
   plugins: [
     updateModuleManifestPlugin(),
-    scss({
-      verbose: true,
-      output: 'dist/style.css',
-      sourceMap: true,
-      watch: ['src/styles/*.scss'],
-    }),
-    copy({
-      targets: [
-        { src: 'src/assets', dest: 'dist' },
-        { src: 'src/templates', dest: 'dist' },
-      ],
-      hook: 'writeBundle',
-    }),
+    svelte(),
+    // copy({
+    //   targets: [
+    //     { src: 'src/assets', dest: 'dist' },
+    //     { src: 'src/templates', dest: 'dist' },
+    //   ],
+    //   hook: 'writeBundle',
+    // }),
   ],
-});
+})
 
 function updateModuleManifestPlugin(): Plugin {
   return {

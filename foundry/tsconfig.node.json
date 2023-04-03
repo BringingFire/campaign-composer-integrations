@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types",
+      "svelte",
+    ],
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Node"
+  },
+  "include": ["vite.config.ts"]
+}

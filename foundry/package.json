@@ -1,28 +1,24 @@
 {
-  "name": "campaign-composer-bridge",
+  "name": "foundry-svelte-ts",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "watch": "tsc && vite build --watch",
-    "clean": "rm -rf dist node_modules",
-    "lint": "eslint .",
+    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
     "link-foundry": "ln -s $PWD/dist \"$HOME/Library/Application Support/FoundryVTT/Data/modules/campaign-composer-bridge\""
   },
   "devDependencies": {
     "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
-    "@types/jquery": "^3.5.14",
-    "@typescript-eslint/eslint-plugin": "^5.30.0",
-    "@typescript-eslint/parser": "^5.30.0",
-    "eslint": "^8.18.0",
-    "eslint-config-prettier": "^8.5.0",
-    "prettier": "2.7.1",
+    "@sveltejs/vite-plugin-svelte": "^2.0.3",
+    "@tsconfig/svelte": "^3.0.0",
     "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-scss": "^3.0.0",
-    "sass": "^1.53.0",
-    "typescript": "^4.7.4",
-    "vite": "^2.9.13"
+    "sass": "^1.60.0",
+    "svelte": "^3.55.1",
+    "svelte-check": "^2.10.3",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.3",
+    "vite": "^4.2.0"
   },
   "dependencies": {
     "campaign-composer-api": "file:../api/dist/typescript"

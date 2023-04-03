@@ -1,6 +1,6 @@
 import { Configuration, DefaultApi } from 'campaign-composer-api';
 import { moduleName } from './constants';
-import { CCModuleData } from './types';
+import type { CCModuleData } from './types';
 
 const apiUrlKey = 'apiUrl';
 const apiKeyKey = 'apiKey';

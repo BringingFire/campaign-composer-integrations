@@ -1,6 +1,6 @@
-import { AmbientLightDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/ambientLightData';
-import { WallDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/wallData';
-import { Uvtt } from 'campaign-composer-api';
+import type { AmbientLightDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/ambientLightData';
+import type { WallDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/wallData';
+import type { Uvtt } from 'campaign-composer-api';
 
 export interface Point {
   x: number;

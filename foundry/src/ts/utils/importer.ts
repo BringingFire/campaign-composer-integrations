@@ -1,23 +1,25 @@
-import { NoteDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/noteData';
-import { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
-import {
+import type { NoteDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/noteData';
+import type { SceneDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/sceneData';
+import type {
   Block,
   BlockAttributeHeaderLevel,
   BlockAttributeLink,
   BlockAttributeListIndent,
   BlockAttributeListStyle,
-  BlockAttributeListStyleStyleEnum,
-  BlockType,
-  CMap,
-  DefaultApi,
   Document as CCDocument,
+  CMap,
   Link,
   MapBackground,
   MapMetadata
 } from 'campaign-composer-api';
-import { getDoors, getLights, getWalls } from './apps/uvtt';
-import { defaultFolderName, moduleName } from './constants';
-import { ensureDirectory, ensureFolder } from './foundryHelpers';
+import {
+  BlockAttributeListStyleStyleEnum,
+  BlockType,
+  DefaultApi,
+} from 'campaign-composer-api';
+import { defaultFolderName, moduleName } from '../constants';
+import { ensureDirectory, ensureFolder } from './foundryStorage';
+import { getDoors, getLights, getWalls } from './uvtt';
 
 interface DocContents {
   html: string;
@@ -238,7 +240,7 @@ export default class Importer {
 
   public async importMap(
     mapId: string,
-  ): Promise<StoredDocument<Scene> | undefined> {
+  ): Promise<StoredDocument<BaseScene> | undefined> {
     console.log('importing map to scene');
     const map = await this.client.getMap({ mapId, campaignId: this.campaignId });
     if (map.id in this.cache.maps) {
@@ -260,7 +262,7 @@ export default class Importer {
 
     let scene = Scenes.instance.find(
       (s) => s.getFlag(moduleName, 'mapId') == map.id,
-    ) as StoredDocument<Scene> | undefined;
+    ) as StoredDocument<BaseScene> | undefined;
     if (!scene) {
       scene = await Scene.create({
         name: map.title ?? 'Untitled Map',
