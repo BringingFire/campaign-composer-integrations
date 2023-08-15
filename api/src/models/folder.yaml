@@ -1,0 +1,22 @@
+folder:
+  type: object
+  required:
+    - id
+    - created
+    - updated
+    - sortIndex
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    created:
+      type: string
+    updated:
+      type: string
+    sortIndex:
+      type: integer
+    trashed:
+      type: string
+    parentId:
+      type: integer

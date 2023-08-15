@@ -1,0 +1,63 @@
+entityComponent:
+  type: object
+  required:
+    - id
+    - entityId
+  properties:
+    id:
+      type: integer
+    entityId:
+      type: integer
+
+entitySummary:
+  type: object
+  required:
+    - id
+    - campaignId
+    - created
+    - updated
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    campaignId:
+      type: integer
+    primaryComponent:
+      $ref: '#/entityComponent'
+    created:
+      type: string
+    updated:
+      type: string
+    trashed:
+      type: string
+    folderId:
+      type: integer
+
+entity:
+  type: object
+  required:
+    - id
+    - campaignId
+    - primaryComponent
+    - created
+    - updated
+  properties:
+    id:
+      type: integer
+    campaignId:
+      type: integer
+    primaryComponent:
+        $ref: '#/entityComponent'
+    components:
+      type: array
+      items:
+        $ref: '#/entityComponent'
+    created:
+      type: string
+    updated:
+      type: string
+    trashed:
+      type: string
+    folderId:
+      type: integer

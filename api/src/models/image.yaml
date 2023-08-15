@@ -1,0 +1,24 @@
+image:
+  type: object
+  required:
+    - id
+    - url
+    - created
+    - updated
+    - entityId
+    - entityComponentId
+  properties:
+    id:
+      type: integer
+    url:
+      type: string # FIXME: Dart type is `Uri`.
+    title:
+      type: string
+    created:
+      type: string
+    updated:
+      type: string
+    trashed:
+      type: string
+    entityComponentId:
+      type: integer
