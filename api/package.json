@@ -1,5 +1,5 @@
 {
-  "name": "campaign-composer-api",
+  "name": "campaign-composer-integrations",
   "version": "0.0.1",
   "author": "Bringing Fire, Inc.",
   "private": true,
@@ -8,10 +8,19 @@
     "validate": "openapi-generator-cli validate -i src/api.yaml",
     "build": "yarn build-ts",
     "build-ts": "openapi-generator-cli generate -i src/api.yaml -g typescript-fetch --additional-properties=npmName=campaign-composer-api,modelPropertyNaming=original -o dist/typescript && cd dist/typescript && yarn && yarn build",
-    "build-js": "openapi-generator-cli generate -i src/api.yaml -g javascript --additional-properties=npmName=campaign-composer-api,modelPropertyNaming=original -o dist/javascript && cd dist/javascript && yarn && yarn build"
+    "build-js": "openapi-generator-cli generate -i src/api.yaml -g javascript --additional-properties=npmName=campaign-composer-api,modelPropertyNaming=original -o dist/javascript && cd dist/javascript && yarn && yarn build",
+    "test": "jest"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.5.1"
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "@types/jest": "^29.5.4",
+    "@types/node": "^20.5.9",
+    "jest": "^29.6.4",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "campaign-composer-api": "file:./dist/typescript"
   }
 }

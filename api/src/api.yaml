@@ -274,7 +274,7 @@ paths:
         - images
       parameters:
         - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/linkId'
+        - $ref: '#/components/parameters/imageId'
       responses:
         '200':
           description: OK
@@ -315,13 +315,13 @@ components:
       schema:
         type: integer
     linkId:
-      name: entityId
+      name: linkId
       in: path
       required: true
       schema:
         type: string
     imageId:
-      name: entityId
+      name: imageId
       in: path
       required: true
       schema:

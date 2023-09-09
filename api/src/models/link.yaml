@@ -1,18 +1,22 @@
 link:
   type: object
-  discriminator:
-    propertyName: "_t"
-    mapping:
-      doc: '#/docLink'
-      map: '#/mapLink'
-      ext: '#/extLink'
-  oneOf:
-    - $ref: '#/docLink'
-    - $ref: '#/mapLink'
-    - $ref: '#/extLink'
+  required:
+    - id
   properties:
-    _t:
+    id:
       type: string
+    _t:
+      discriminator:
+        propertyName: "_t"
+        mapping:
+          doc: '#/docLink'
+          map: '#/mapLink'
+          ext: '#/extLink'
+      type: 
+        oneOf:
+          - $ref: '#/docLink'
+          - $ref: '#/mapLink'
+          - $ref: '#/extLink'
 
 docLink:
   type: object
