@@ -2,44 +2,25 @@ link:
   type: object
   required:
     - id
+    - url
+    - created
+    - updated
+    - entityId
+    - entityComponentId
   properties:
     id:
+      type: integer
+    url:
       type: string
-    _t:
-      discriminator:
-        propertyName: "_t"
-        mapping:
-          doc: '#/docLink'
-          map: '#/mapLink'
-          ext: '#/extLink'
-      type: 
-        oneOf:
-          - $ref: '#/docLink'
-          - $ref: '#/mapLink'
-          - $ref: '#/extLink'
-
-docLink:
-  type: object
-  required:
-    - docId
-  properties:
-    docId:
+    title:
       type: string
-    startBlockId:
+    created:
       type: string
-
-mapLink:
-  type: object
-  required:
-    - mapId
-  properties:
-    mapId:
+    updated:
       type: string
-
-extLink:
-  type: object
-  required:
-    - uri
-  properties:
-    uri:
+    trashed:
       type: string
+    entityId:
+      type: integer
+    entityComponentId:
+      type: integer

@@ -266,7 +266,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './models/image.yaml#/image'
+                  $ref: './models/image.yaml#/imageSummary'
   /campaigns/{campaignId}/images/{imageId}:
     get:
       operationId: getImage

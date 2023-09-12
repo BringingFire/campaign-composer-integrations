@@ -65,7 +65,7 @@ mapPin:
     label:
       type: string
     link:
-      $ref: './link.yaml#/link'
+      $ref: './composerLink.yaml#/composerLink'
 
 # Just calling it "map" conflicts with at least the Typescript code generator.
 cMap:
