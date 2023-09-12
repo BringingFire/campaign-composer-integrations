@@ -77,7 +77,7 @@ blockAttributeLink:
     - link
   properties:
     link:
-      $ref: "./link.yaml#/link"
+      $ref: "./composerLink.yaml#/composerLink"
 
 blockAttributeBlockQuote:
   type: object

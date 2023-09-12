@@ -10,6 +10,10 @@ tags:
   - name: campaigns
   - name: documents
   - name: maps
+  - name: entities
+  - name: links
+  - name: images
+  - name: folders
 
 paths:
   /campaigns:
@@ -34,6 +38,12 @@ paths:
         - documents
       parameters:
         - $ref: '#/components/parameters/campaignId'
+        - in: query
+          name: entityId
+          description: Optional entity ID to filter entities by
+          required: false
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -66,6 +76,12 @@ paths:
         - maps
       parameters:
         - $ref: '#/components/parameters/campaignId'
+        - in: query
+          name: entityId
+          description: Optional entity ID to filter entities by
+          required: false
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -120,6 +136,152 @@ paths:
             application/json:
               schema:
                 $ref: './models/map.yaml#/mapMetadata'
+  /campaigns/{campaignId}/folders:
+    get:
+      summary: Get a list of metadata for all folders
+      operationId: listFolders
+      tags:
+        - folders
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/folder.yaml#/folder'
+  /campaigns/{campaignId}/folders/{folderId}:
+    get:
+      operationId: getFolder
+      tags:
+        - folders
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/folderId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/folder.yaml#/folder'
+  /campaigns/{campaignId}/entities:
+    get:
+      summary: Get a list of metadata for all entities
+      operationId: listEntities
+      tags:
+        - entities
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - in: query
+          name: folderId
+          description: Optional folder ID to filter entities by
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/entity.yaml#/entitySummary'
+  /campaigns/{campaignId}/entities/{entityId}:
+    get:
+      operationId: getEntity
+      tags:
+        - entities
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/entityId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/entity.yaml#/entitySummary'
+  /campaigns/{campaignId}/links:
+    get:
+      summary: Get a list of metadata for all links
+      operationId: listLinks
+      tags:
+        - links
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - in: query
+          name: entityId
+          description: Optional entity ID to filter entities by
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/link.yaml#/link'
+  /campaigns/{campaignId}/links/{linkId}:
+    get:
+      operationId: getLink
+      tags:
+        - links
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/linkId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/link.yaml#/link'
+  /campaigns/{campaignId}/images:
+    get:
+      summary: Get a list of metadata for all images
+      operationId: listImages
+      tags:
+        - images
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - in: query
+          name: entityId
+          description: Optional entity ID to filter entities by
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './models/image.yaml#/imageSummary'
+  /campaigns/{campaignId}/images/{imageId}:
+    get:
+      operationId: getImage
+      tags:
+        - images
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/imageId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './models/image.yaml#/image'
 
 components:
   securitySchemes:
@@ -146,3 +308,27 @@ components:
       required: true
       schema:
         type: string
+    entityId:
+      name: entityId
+      in: path
+      required: true
+      schema:
+        type: integer
+    linkId:
+      name: linkId
+      in: path
+      required: true
+      schema:
+        type: string
+    imageId:
+      name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+    folderId:
+      name: folderId
+      in: path
+      required: true
+      schema:
+        type: integer

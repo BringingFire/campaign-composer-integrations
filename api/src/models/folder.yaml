@@ -1,26 +1,22 @@
-link:
+folder:
   type: object
   required:
     - id
-    - url
     - created
     - updated
-    - entityId
-    - entityComponentId
+    - sortIndex
   properties:
     id:
       type: integer
-    url:
-      type: string
     title:
       type: string
     created:
       type: string
     updated:
       type: string
+    sortIndex:
+      type: integer
     trashed:
       type: string
-    entityId:
-      type: integer
-    entityComponentId:
+    parentId:
       type: integer

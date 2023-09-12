@@ -1,0 +1,64 @@
+imageSummary:
+  type: object
+  required:
+    - id
+    - url
+    - created
+    - updated
+    - entityComponentId
+    - format
+    - height
+    - width
+  properties:
+    id:
+      type: integer
+    created:
+      type: string
+    updated:
+      type: string
+    trashed:
+      type: string
+    entityComponentId:
+      type: integer
+    title:
+      type: string
+    format:
+      type: string
+    width:
+      type: integer
+    height:
+      type: integer
+
+image:
+  type: object
+  required:
+    - id
+    - url
+    - created
+    - updated
+    - entityComponentId
+    - format
+    - height
+    - width
+    - contents
+  properties:
+    id:
+      type: integer
+    created:
+      type: string
+    updated:
+      type: string
+    trashed:
+      type: string
+    entityComponentId:
+      type: integer
+    title:
+      type: string
+    format:
+      type: string
+    width:
+      type: integer
+    height:
+      type: integer
+    contents:
+      type: string
