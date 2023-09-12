@@ -1,13 +1,10 @@
-export const TEST_HOST = 'http://localhost:4492';
-export const TEST_API_KEY = 'tDeQrn9K0IilKsoiXKM8wqBi';
-
 export const TEST_CAMPAIGNS_EXPECT_LENGTH: number = 1;
 export const TEST_CAMPAIGN_ID: number = 1;
 
 export const TEST_DOCUMENTS_EXPECT_LENGTH: number = 5;
 export const TEST_DOCUMENT_ID: string = 'a3cc0568-f013-4b23-a0de-ba64b2c54f8a';
 
-export const TEST_MAPS_EXPECT_LENGTH: number = 2;
+export const TEST_MAPS_EXPECT_LENGTH: number = 1;
 export const TEST_MAP_ID: string = '1e647a6e-fefa-4d38-a98e-d0ef325087bd';
 export const TEST_MAP_EXPECT_WIDTH: number = 4350;
 
