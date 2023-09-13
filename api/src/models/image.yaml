@@ -18,8 +18,6 @@ imageSummary:
       type: string
     trashed:
       type: string
-    entityComponentId:
-      type: integer
     title:
       type: string
     format:
@@ -50,8 +48,6 @@ image:
       type: string
     trashed:
       type: string
-    entityComponentId:
-      type: integer
     title:
       type: string
     format:
