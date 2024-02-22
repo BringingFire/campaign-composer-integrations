@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.7.0",
+    "@openapitools/openapi-generator-cli": "^2.9.0",
     "@types/jest": "^29.5.4",
     "@types/node": "^20.5.9",
     "jest": "^29.6.4",
